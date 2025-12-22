@@ -19,12 +19,12 @@ const TabsSoftPillsDemo = () => {
         onValueChange={setSelectedTab}
         className='gap-4'
       >
-        <TabsList className='bg-sidebar rounded-none h-11  p-0'>
+        <TabsList className='bg-background rounded-none h-11  p-0'>
           {tabs.map(tab => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className='bg-sidebar data-[state=active]:border-primary dark:data-[state=active]:border-primary h-full rounded-none border-0 border-b-2 border-transparent data-[state=active]:shadow-none'
+              className='bg-background data-[state=active]:border-primary dark:data-[state=active]:border-primary h-full rounded-none border-0 border-b-2 border-transparent data-[state=active]:shadow-none'
             >
               {tab.name}
             </TabsTrigger>

@@ -32,7 +32,7 @@ const DataTestingPanel: React.FC = () => {
   const intensityBtnConfig = intensityConfig[0];
 
   return (
-    <section className="w-[30rem] flex flex-col gap-4 overflow-auto bg-sidebar p-6 border-border border-r ">
+    <section className="w-[30rem] flex flex-col gap-4 overflow-auto bg-background p-6 border-border border-r ">
       <p className="text-sm">PID Testing</p>
       <Accordion
         type="single"

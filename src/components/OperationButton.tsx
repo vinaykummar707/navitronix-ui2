@@ -35,7 +35,7 @@ export const OperationButton: React.FC<OperationButtonProps> = ({ config }) => {
 
   return (
     <Button
-      variant="secondary"
+      variant="outline"
       onClick={handleClick}
       disabled={config.disabled || isLoading || postMutation.isLoading}
       className="flex items-center gap-2"

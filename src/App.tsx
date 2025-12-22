@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-
 import Layout from './components/layout'
 import PcbsPage from './pages/PcbsPage'
 import TestingPlayground from './pages/TestingPlayground'
+import RouteCreatePage from './pages/RouteCreatePage'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         {/* Login has no layout */}
         <Route path="/playground" element={<TestingPlayground />} />
+        <Route path="/route-create" element={<RouteCreatePage />} />
 
         {/* Everything else uses the Layout */}
         <Route path="/home" element={<Layout />}>

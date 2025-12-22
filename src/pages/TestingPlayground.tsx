@@ -33,7 +33,7 @@ const TestingPlayground: React.FC = () => {
     return (
         <div className="flex flex-col h-screen bg-background text-foreground">
             {/* Topbar */}
-            <header className="flex items-center shrink-0 justify-between h-16 px-4 bg-sidebar  border-border border-b">
+            <header className="flex items-center shrink-0 justify-between h-14 px-4 bg-background  border-border border-b">
 
                 <div className="w-[40rem] flex items-center justify-start">
                     <Button size={'sm'} variant={'outline'} onClick={() => navigate("/home")} ><ChevronLeft /> Back</Button>
@@ -58,11 +58,11 @@ const TestingPlayground: React.FC = () => {
                 <section className="flex flex-col flex-1 ">
                     {/* Board Operations Accordions */}
 
-                    <header className=" bg-sidebar px-4 shrink-0 border-border border-b border-r">
+                    <header className=" bg-background px-4 shrink-0 border-border border-b border-r">
                         <TabsSoftPillsDemo />
                     </header>
 
-                    <header className="flex items-center shrink-0 py-4 justify-between h-18   px-4 bg-sidebar  border-border border-b border-r">
+                    <header className="flex items-center shrink-0 py-4 justify-between h-18   px-4 bg-background  border-border border-b border-r">
                         <TestingForm />
                     </header>
 

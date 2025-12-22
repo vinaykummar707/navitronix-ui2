@@ -21,7 +21,7 @@ const ACCORDION_SECTIONS = [
 ];
 
 const PidCodeTestingPanel: React.FC = () => (
-  <section className="flex-1 overflow-auto bg-sidebar  flex flex-col gap-4 p-6 border-border border-r ">
+  <section className="flex-1 overflow-auto bg-background  flex flex-col gap-4 p-6 border-border border-r ">
     <p className=" test-sm">PID Codes Testing</p>
     <Accordion  type="single" collapsible className="w-full bg-accent/40 rounded-md border" defaultValue="Board Information">
       {ACCORDION_SECTIONS.map(({ value, label, configs }) => (

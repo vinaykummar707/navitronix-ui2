@@ -1,130 +1,92 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils"; // if you use classnames utility
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import TabsSoftPillsDemo from "@/components/SoftTabs";
+import TestingForm from "@/components/TestingForm";
+import useTestingFormStore from "@/stores/useTestingFormStore";
+import useTabsStore from "@/stores/useTabsStore";
+import { Calendar, CheckCircle, ChevronLeft, Clock, Cloud, Code, Cpu, Download, Hash, RefreshCw, Save, Thermometer, Type, Upload, Zap } from "lucide-react";
+import { boardInfoConfigs, buttonConfigs, cpuInfoConfigs, firmwareInfoConfigs, operationInfoConfigs, tempInfoConfigs, voltageInfoConfigs } from "@/buttonConfig";
+import { OperationButton } from "@/components/OperationButton";
+import PidCodeTestingPanel from "@/components/PidCodesTestingPanel";
+import DataTestingPanel from "@/components/DataTestingPanel";
+import { useNavigate } from "react-router";
+
 
 const TestingPlayground: React.FC = () => {
+
+    const navigate = useNavigate(); // <-- useNavigate hook
+
+
+    const { input, radio } = useTestingFormStore();
+    const { selectedTab } = useTabsStore();
+
+    useEffect(() => {
+        console.log(input, radio, selectedTab)
+    })
+
+
+
     return (
         <div className="flex flex-col h-screen bg-background text-foreground">
             {/* Topbar */}
-            <header className="flex items-center justify-between h-16 px-6 bg-sidebar text-primary-foreground border-border border-b">
-                <div className="font-semibold text-lg">Testing Playground</div>
-                <Button variant="secondary" size="sm">
-                    Action
-                </Button>
+            <header className="flex items-center shrink-0 justify-between h-16 px-4 bg-sidebar  border-border border-b">
+
+                <div className="w-[40rem] flex items-center justify-start">
+                    <Button size={'sm'} variant={'outline'} onClick={() => navigate("/home")} ><ChevronLeft /> Back</Button>
+                </div>
+                <div className="font-semibold flex-1 text-sm flex items-center justify-center">Testing Playground</div>
+                <div className="w-[40rem] flex items-center gap-2 justify-end">
+                    <Button size={'sm'} variant={'outline'}><Download /> Download Logs</Button>
+                    <Button size={'sm'} variant={''}><Save /> Save Logs </Button>
+                </div>
+
             </header>
 
 
 
-           
+
             {/* Content */}
             <div className="flex flex-1 overflow-hidden">
                 {/* Left Panel */}
 
+
                 {/* pis testing section */}
-                <section className="w-[16rem] bg-sidebar overflow-auto border-r border-border">
+                <section className="flex flex-col flex-1 ">
                     {/* Board Operations Accordions */}
-                    <section className="w-full flex flex-col gap-2">
-                        {/* Basic Operations */}
-                        <div className="flex-1 min-w-[16rem]">
-                            <Accordion className="" type="single" collapsible>
-                                <AccordionItem  value="basic">
-                                    <AccordionTrigger className="px-4" >Basic</AccordionTrigger>
-                                    <AccordionContent className="px-4">
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <Button variant="outline"><span role="img" aria-label="data">🗃️</span> Data</Button>
-                                            <Button variant="outline"><span role="img" aria-label="link">🔗</span> Link</Button>
-                                            <Button variant="outline"><span role="img" aria-label="reset">🔄</span> Reset</Button>
-                                            <Button variant="outline"><span role="img" aria-label="test">✏️</span> Test</Button>
-                                            <Button variant="outline"><span role="img" aria-label="led-open">💡</span> Led Open</Button>
-                                            <Button variant="outline"><span role="img" aria-label="led-close">💡</span> Led Close</Button>
-                                            <Button variant="outline" className="col-span-2"><span role="img" aria-label="delete">🗑️</span> Delete</Button>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                        </div>
 
-                        {/* DTC Codes */}
-                        <div className="flex-1 min-w-[12rem]">
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="dtc-codes">
-                                    <AccordionTrigger>DTC Codes</AccordionTrigger>
-                                    <AccordionContent>
-                                        <div className="flex flex-col gap-2">
-                                            <Button variant="outline" className="justify-start"><span role="img" aria-label="hv">🔼</span> High Voltage</Button>
-                                            <Button variant="outline" className="justify-start"><span role="img" aria-label="lv">🔽</span> Low Voltage</Button>
-                                            <Button variant="outline" className="justify-start"><span role="img" aria-label="heat">✨</span> Over Heat</Button>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                        </div>
+                    <header className=" bg-sidebar px-4 shrink-0 border-border border-b border-r">
+                        <TabsSoftPillsDemo />
+                    </header>
 
-                        {/* DTC Count Codes */}
-                        <div className="flex-1 min-w-[16rem]">
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="dtc-count">
-                                    <AccordionTrigger>DTC Count Codes</AccordionTrigger>
-                                    <AccordionContent>
-                                        <div className="mb-2">
-                                            <label className="block text-sm">Write Value</label>
-                                            <Input placeholder="Input value here" />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <Button variant="ghost" className="justify-start"><span role="img" aria-label="hv">🔼</span> High Voltage</Button>
-                                            <Button variant="ghost" className="justify-start"><span role="img" aria-label="lv">🔽</span> Low Voltage</Button>
-                                            <Button variant="ghost" className="justify-start"><span role="img" aria-label="heat">✨</span> Over Heat</Button>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                        </div>
+                    <header className="flex items-center shrink-0 py-4 justify-between h-18   px-4 bg-sidebar  border-border border-b border-r">
+                        <TestingForm />
+                    </header>
 
-                        {/* Intensity */}
-                        <div className="flex-1 min-w-[16rem]">
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="intensity">
-                                    <AccordionTrigger>Intensity</AccordionTrigger>
-                                    <AccordionContent>
-                                        <div className="mb-2">
-                                            <label className="block text-sm">Mode</label>
-                                            <div className="flex flex-col gap-2">
-                                                <label className="flex items-center gap-2">
-                                                    <input type="radio" name="intensityMode" value="auto" /> Auto
-                                                </label>
-                                                <label className="flex items-center gap-2">
-                                                    <input type="radio" name="intensityMode" value="manual" /> Manual
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-sm">Write Value</label>
-                                            <Input placeholder="Input value here" />
-                                        </div>
-                                        <Button variant="ghost" className="justify-start w-full"><span role="img" aria-label="intensity">✨</span> Intensity</Button>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                        </div>
+
+
+
+
+                    <section className="flex-1 flex">
+                        <DataTestingPanel />
+                        <PidCodeTestingPanel />
                     </section>
-                </section>
 
-
-                <section className="flex-1 bg-dotted p-4 overflow-auto  ">
-                   <TabsSoftPillsDemo/>
                 </section>
 
 
 
-                {/* Right Panel */}
-                <section className="w-[20rem] bg-sidebar p-4 border-border border-l overflow-auto">
-                    <div className="text-muted-foreground font-medium mb-2">Right Panel</div>
-                    {/* Right content goes here */}
+
+                <section className="w-[35rem] bg-dotted p-4 overflow-auto  ">
+
+                    <h1>Hello</h1>
                 </section>
+
+
+
             </div>
         </div>
     );

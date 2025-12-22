@@ -1,4 +1,4 @@
-import { Calendar, HardDrive, Home, Inbox, Microchip, Search, Settings } from "lucide-react"
+import { Calendar, FlaskConical, HardDrive, Home, Inbox, Microchip, Search, Settings, TestTube, TestTube2 } from "lucide-react"
 
 import {
   Sidebar,
@@ -15,8 +15,13 @@ import {
 const items = [
   {
     title: "Pcbs",
-    url: "#",
+    url: "home",
     icon: HardDrive,
+  },
+  {
+    title: "Playground",
+    url: "/playground",
+    icon: FlaskConical,
   },
 //   {
 //     title: "Inbox",

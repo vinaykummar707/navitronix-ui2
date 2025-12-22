@@ -21,7 +21,7 @@ function App() {
 
         {/* Everything else uses the Layout */}
         <Route path="/home" element={<Layout />}>
-          <Route path="pcbs" element={<PcbsPage />} />
+          <Route index  element={<PcbsPage />} />
         </Route>
 
         {/* Fallback: redirect unknown routes to login or home */}

@@ -20,7 +20,7 @@ export function RouteHeader({
 }: RouteHeaderProps) {
   return (
     <header
-      className={`flex items-center shrink-0 justify-between h-14 px-4 bg-secondary/40 border-border border-b ${className}`}
+      className={`flex items-center  justify-between h-14 px-4 bg-secondary/40 border-border border-b ${className}`}
     >
       <div className="w-[40rem] flex items-center justify-start">
         <Button size="sm" variant="secondary" onClick={onBack}>
@@ -37,7 +37,7 @@ export function RouteHeader({
         <Button size="sm" variant="secondary" onClick={onDownloadJson}>
           <Download /> Download Json
         </Button>
-        <Button size="sm" variant="" onClick={onSaveRoute}>
+        <Button type="submit" size="sm" variant="" onClick={onSaveRoute}>
           <Save /> Save Route
         </Button>
       </div>

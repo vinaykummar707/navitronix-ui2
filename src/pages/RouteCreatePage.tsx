@@ -6,12 +6,30 @@ import useTabsStore from "@/stores/useTabsStore";
 import { LeftPanel } from "@/components/LeftPanel";
 import { SimulationPanel } from "@/components/SimulationPanel";
 import { RightPanel } from "@/components/RightPanel";
-// other imports remain unchanged...
+import type { RouteInformation, DisplayConfig, FontWeight, Position, ScreenFormat, ScrollType } from "@/routeConfig";
+import { FormProvider, useForm } from "react-hook-form";
+import { defaultValues } from "@/defaultValues";
+import { RouteInfoForm } from "@/components/RouteInfoForm";
+import { LanguagesSelector } from "@/components/LanguagesSelector";
+import { Separator } from "@/components/ui/separator";
 
-// ... existing code ...
+
+
 
 const RouteCreatePage: React.FC = () => {
     const navigate = useNavigate();
+
+
+
+    const methods = useForm<DisplayConfig>({ defaultValues: defaultValues });
+
+    const { handleSubmit } = methods;
+
+
+    const onSubmit = (data: DisplayConfig) => {
+        console.log("Form Data", data);
+        // Do your API call or state update
+    };
 
     const { selectedTab } = useTabsStore();
 
@@ -28,24 +46,36 @@ const RouteCreatePage: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen text-foreground">
-            {/* Topbar */}
-            <RouteHeader
-                title="Testing Playground"
-                onBack={() => navigate("/home")}
-                onViewJson={handleViewJson}
-                onDownloadJson={handleDownloadJson}
-                onSaveRoute={handleSaveRoute}
-            />
 
-            <div className="flex flex-1 overflow-hidden">
-                <section className="flex-1 bg-dotted flex">
-                    <LeftPanel />
-                    <SimulationPanel />
-                    <RightPanel />
-                </section>
-            </div>
-        </div>
+        <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="h-screen flex flex-col overflow-hidden">
+                {/* Topbar */}
+                <RouteHeader
+                    title="Testing Playground"
+                    onBack={() => navigate("/home")}
+                    onViewJson={handleViewJson}
+                    onDownloadJson={handleDownloadJson}
+                    onSaveRoute={handleSubmit(onSubmit)}
+                />
+
+                {/* App Body: Each panel gets its own scrolling */}
+                <div className="flex flex-1 min-h-0">
+                    <section className="flex-1 flex">
+                        <LeftPanel >
+                            <div className="flex-1 overflow-auto p-4">
+                                <RouteInfoForm />
+                                <Separator />
+                                <LanguagesSelector />
+                            </div>
+                        </LeftPanel>
+
+                        <SimulationPanel />
+
+                        <RightPanel />
+                    </section>
+                </div>
+            </form>
+        </FormProvider>
     );
 };
 

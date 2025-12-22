@@ -2,10 +2,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useTabsStore from '@/stores/useTabsStore' // <-- added
 
 const tabs = [
-  { name: 'Front Board', value: '41' },
-  { name: 'Side Board', value: '42' },
-  { name: 'Rear Board', value: '43' },
-  { name: 'Internal Board', value: '44' }
+  { name: 'Front Board', value: 'front' },
+  { name: 'Side Board', value: 'side' },
+  { name: 'Rear Board', value: 'rear' },
+  { name: 'Internal Board', value: 'internal' }
 ]
 
 const TabsSoftPillsDemo = () => {

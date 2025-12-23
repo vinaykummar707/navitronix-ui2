@@ -7,7 +7,7 @@ type TabsStore = {
 
 const useTabsStore = create<TabsStore>((set) => ({
   // set initial selectedTab value to the first tab from your list
-  selectedTab: "41",
+  selectedTab: "front",
   setSelectedTab: (value) => set({ selectedTab: value }),
 }));
 

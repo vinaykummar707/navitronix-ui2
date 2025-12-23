@@ -61,16 +61,8 @@ const RouteCreatePage: React.FC = () => {
                 {/* App Body: Each panel gets its own scrolling */}
                 <div className="flex flex-1 min-h-0">
                     <section className="flex-1 flex">
-                        <LeftPanel >
-                            <div className="flex-1 overflow-auto p-4">
-                                <RouteInfoForm />
-                                <Separator />
-                                <LanguagesSelector />
-                            </div>
-                        </LeftPanel>
-
+                        <LeftPanel />
                         <SimulationPanel />
-
                         <RightPanel />
                     </section>
                 </div>

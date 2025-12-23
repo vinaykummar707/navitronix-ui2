@@ -1,79 +1,53 @@
 import React from "react";
 import useTabsStore from "@/stores/useTabsStore";
-import { useFormContext, useWatch, set, useFieldArray } from "react-hook-form";
-import { TextPropertiesForm } from "@/components/TextPropertiesForm";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { screenFormats, getDefaultTextsForFormat } from "@/defaultValues";
-import type { DisplayConfig, Screens, Screen, ScreenFormat } from "@/routeConfig";
+import { useFormContext, useWatch } from "react-hook-form";
+import { getDefaultTextsForFormat } from "@/defaultValues";
+import type { DisplayConfig, Screens, ScreenFormat } from "@/routeConfig";
+import { CopyBoardPropertiesButton } from "./CopyBoardPropertiesButton";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
+import { Label } from "./ui/label";
+import { FormatSelect } from "./FormatSelect";
+import { TextPropertiesAccordion } from "./TextPropertiesAccordion";
+import { getTextItemsForFormat } from "./getTextItemsForFormat";
 
 export function RightPanel() {
-  const { selectedTab } = useTabsStore(); // e.g. "front", "side", etc.
+  const { selectedTab } = useTabsStore();
   const { control, setValue, watch } = useFormContext<DisplayConfig>();
   const displayConfig = useWatch({ control, name: "displayConfig" }) || {};
 
   return (
-    <section className="w-[320px] flex flex-col overflow-auto bg-sidebar border-l p-4">
-      {Object.entries(displayConfig).map(([lang, screens]) => {
-        const screen = (screens as Screens)[selectedTab];
-        if (!screen) return null;
+    <section className="w-[320px] flex flex-col gap-4 overflow-auto bg-sidebar border-l p-4">
+      <Label>Simulation Settings</Label>
+      <Accordion type="single" collapsible className="w-full rounded-md border" defaultValue="">
+        {Object.entries(displayConfig).map(([lang, screens]) => {
+          const screen = (screens as Screens)[selectedTab];
+          if (!screen) return null;
 
-        // format change
-        const formatField = `displayConfig.${lang}.${selectedTab}.format` as const;
-        const textsField = `displayConfig.${lang}.${selectedTab}.texts` as const;
-        const currentFormat = watch(formatField);
+          const formatField = `displayConfig.${lang}.${selectedTab}.format` as const;
+          const textsField = `displayConfig.${lang}.${selectedTab}.texts` as const;
+          const currentFormat: ScreenFormat = watch(formatField);
+          const items = getTextItemsForFormat(currentFormat, lang, selectedTab);
 
-        // Generate items list for editing texts (just as in previous answer)
-        const items = (() => {
-          if (currentFormat === "single") {
-            return [{ label: "Text", name: `displayConfig.${lang}.${selectedTab}.texts.text` }];
-          }
-          if (currentFormat === "two") {
-            return [
-              { label: "Side Text", name: `displayConfig.${lang}.${selectedTab}.texts.sideText` },
-              { label: "Text", name: `displayConfig.${lang}.${selectedTab}.texts.text` },
-            ];
-          }
-          if (currentFormat === "three") {
-            return [
-              { label: "Side Text", name: `displayConfig.${lang}.${selectedTab}.texts.sideText` },
-              { label: "Upper Half Text", name: `displayConfig.${lang}.${selectedTab}.texts.upperHalfText` },
-              { label: "Lower Half Text", name: `displayConfig.${lang}.${selectedTab}.texts.lowerHalfText` },
-            ];
-          }
-          return [];
-        })();
-
-        return (
-          <div key={lang} className="mb-4 border-b">
-            <h3 className="text-sm font-semibold mb-2">{lang.toUpperCase()}</h3>
-            <div className="mb-2">
-              <Select
-                value={currentFormat}
-                onValueChange={(next: ScreenFormat) => {
-                  setValue(formatField, next, { shouldDirty: true, shouldValidate: true });
-                  setValue(textsField, getDefaultTextsForFormat(next), { shouldDirty: true, shouldValidate: true });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select format" />
-                </SelectTrigger>
-                <SelectContent>
-                  {screenFormats.map(fmt => (
-                    <SelectItem key={fmt} value={fmt}>
-                      {fmt.charAt(0).toUpperCase() + fmt.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {items.map(({ label, name }) => (
-              <div key={name} className="mb-3  p-2 rounded">
-                <TextPropertiesForm name={name} heading={label} />
-              </div>
-            ))}
-          </div>
-        );
-      })}
+          return (
+            <AccordionItem className="bg-accent/50" value={lang} key={lang}>
+              <AccordionTrigger className="px-5">{lang}</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground flex flex-col gap-4 px-4">
+                <FormatSelect
+                  format={currentFormat}
+                  onChange={next => {
+                    setValue(formatField, next, { shouldDirty: true, shouldValidate: true });
+                    setValue(textsField, getDefaultTextsForFormat(next), { shouldDirty: true, shouldValidate: true });
+                  }}
+                />
+                <Label>Copy Simulation</Label>
+                <CopyBoardPropertiesButton lang={lang} current={selectedTab as any} />
+                <Label>Text Properties</Label>
+                <TextPropertiesAccordion items={items} />
+              </AccordionContent>
+            </AccordionItem>
+          );
+        })}
+      </Accordion>
     </section>
   );
 }

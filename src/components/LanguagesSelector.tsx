@@ -80,10 +80,10 @@ export const LanguagesSelector: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 p-4  gap-4">
+    <div className="grid grid-cols-1  gap-4">
       {[0, 1, 2].map((idx) => (
-        <div key={idx} className="flex w-full flex-col">
-          <label className="mb-1 text-sm font-semibold">Language {idx + 1}</label>
+        <div key={idx} className="flex w-full gap-4 flex-col">
+          <label className=" text-sm font-semibold">Language {idx + 1}</label>
           <Select
           
             value={selectedLanguages[idx] || ""}

@@ -12,6 +12,7 @@ import {
 import type { DisplayConfig, TextConfig, ScrollType, Position, FontWeight } from "@/routeConfig";
 
 import { ScrollTypes, Positions, FontWeights } from "@/routeConfig";
+import { IMEInput } from "./IMEInput";
 
 type Props = {
   name: string; // i.e. 'displayConfig.en.front.texts.text'
@@ -23,6 +24,8 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
   // get value for select inputs
   const prefix = name ? name + "." : "";
 
+  const langCode = name.split(".")[1];
+
   // For deep errors
   function getError(field: string) {
     return field.split('.').reduce((o, k) => o?.[k], errors as any)?.message;
@@ -30,12 +33,18 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
 
   // You could show a heading if wanted
   return (
-    <FieldGroup  className="bg-accent p-4   rounded-xl">
-      {heading && <FieldLabel className="font-bold mb-2">{heading}</FieldLabel>}
-      <div className="grid grid-cols-2 gap-1">
+    <FieldGroup  className=" px-2 pb-4 ">
+      <div className="grid grid-cols-1 gap-2">
       <Field className="">
         <FieldLabel htmlFor={prefix + "text"}>Text</FieldLabel>
-        <Input id={prefix + "text"} {...register(prefix + "text")} />
+        {/* Use IMEInput for transliteration */}
+        <IMEInput
+            id={prefix + "text"}
+            langCode={langCode}
+            value={watch(prefix + "text")}
+            onChange={(val) => setValue(prefix + "text", val, { shouldDirty: true, shouldValidate: true })}
+            placeholder="Type in English..."
+          />
         <FieldError>{getError(prefix + "text")}</FieldError>
       </Field>
 

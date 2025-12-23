@@ -23,7 +23,8 @@ export const RouteInfoForm: React.FC = () => {
   } = useFormContext<DisplayConfig>();
 
   return (
-    <FieldGroup className="p-4">
+    
+    <FieldGroup className="">
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="route.routeNumber">Route Number</FieldLabel>

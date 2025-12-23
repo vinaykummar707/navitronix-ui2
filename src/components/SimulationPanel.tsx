@@ -1,7 +1,9 @@
+import DisplayEditor from "./DisplayEditor";
 import TabsSoftPillsDemo from "./SoftTabs";
 
-export function SimulationPanel() {
-  return <section className="flex-1 p-4 bg-dotted">
+export default function SimulationPanel() {
+  return <section className="flex-1 p-4 flex flex-col gap-4 bg-dotted">
     <TabsSoftPillsDemo/>
+    <DisplayEditor/>
   </section>;
 }

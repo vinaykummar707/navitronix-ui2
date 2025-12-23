@@ -4,7 +4,6 @@ import { RouteHeader } from "@/components/RouteHeader";
 import useTestingFormStore from "@/stores/useTestingFormStore";
 import useTabsStore from "@/stores/useTabsStore";
 import { LeftPanel } from "@/components/LeftPanel";
-import { SimulationPanel } from "@/components/SimulationPanel";
 import { RightPanel } from "@/components/RightPanel";
 import type { RouteInformation, DisplayConfig, FontWeight, Position, ScreenFormat, ScrollType } from "@/routeConfig";
 import { FormProvider, useForm } from "react-hook-form";
@@ -12,6 +11,7 @@ import { defaultValues } from "@/defaultValues";
 import { RouteInfoForm } from "@/components/RouteInfoForm";
 import { LanguagesSelector } from "@/components/LanguagesSelector";
 import { Separator } from "@/components/ui/separator";
+import SimulationPanel from "@/components/SimulationPanel";
 
 
 

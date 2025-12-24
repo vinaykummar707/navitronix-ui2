@@ -16,6 +16,12 @@ export function RightPanel() {
   const { control, setValue, watch } = useFormContext<DisplayConfig>();
   const displayConfig = useWatch({ control, name: "displayConfig" }) || {};
 
+
+  // Helper: extract base code ("en3" => "en")
+function getBaseCode(code: string) {
+  return code.replace(/\d+$/, "");
+}
+
   return (
     <section className="w-[320px] shrink-0 flex flex-col gap-4 overflow-auto bg-sidebar border-l p-4">
       <Label>Simulation Settings</Label>
@@ -34,7 +40,7 @@ export function RightPanel() {
               <AccordionTrigger className="px-5">
               <span className='flex items-center gap-4'>
                 <Languages className='size-4 shrink-0' />
-                <span>{AVAILABLE_LANGUAGES.find(l => l.code === lang)?.label || lang}</span>
+                <span>{AVAILABLE_LANGUAGES.find(l => l.code === getBaseCode(lang))?.label || getBaseCode(lang)}</span>
               </span>
                 
                 </AccordionTrigger>

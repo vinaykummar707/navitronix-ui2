@@ -3,6 +3,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { TextPropertiesForm } from "@/components/TextPropertiesForm";
 import { ALargeSmall, Text } from "lucide-react";
 
+
+
 interface Item {
   label: string;
   name: string;

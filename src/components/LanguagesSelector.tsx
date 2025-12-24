@@ -3,6 +3,8 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { DisplayConfig, Screens, Screen, ScreenFormat } from "@/routeConfig";
 import { AVAILABLE_LANGUAGES } from "@/defaultValues";
+import { Button } from "./ui/button";
+import { X } from "lucide-react";
 
 
 
@@ -32,73 +34,219 @@ const getDefaultScreens = (): Screens => ({
   internal: { ...DEFAULT_SCREEN }
 });
 
+// ... existing imports and constants ...
+
+// Helper: gets next available code with suffix (e.g., "en", "en2", "en3")
+function getNextLanguageKey(baseCode: string, existingKeys: string[]): string {
+  if (!existingKeys.includes(baseCode)) return baseCode;
+  let counter = 2;
+  // Keep incrementing suffix until unique
+  while (existingKeys.includes(`${baseCode}${counter}`)) counter++;
+  return `${baseCode}${counter}`;
+}
+
+// Helper: extract base code ("en3" => "en")
+function getBaseCode(code: string) {
+  return code.replace(/\d+$/, "");
+}
+
+// export const LanguagesSelector: React.FC = () => {
+//   const { control, setValue } = useFormContext<DisplayConfig>();
+//   const displayConfig = useWatch({
+//     control,
+//     name: "displayConfig"
+//   }) || {};
+
+//   // Use an array for the selected languages (allow duplicates)
+//   const selectedLanguages = Array.isArray(displayConfig)
+//     ? displayConfig
+//     : Object.keys(displayConfig).length > 0
+//       ? Object.entries(displayConfig).map(([code, screens]) => ({ code, screens }))
+//       : [{ code: "none", screens: getDefaultScreens() }];
+
+//   // Handle language change at index
+//   const handleLanguageChange = (idx: number, newLang: string) => {
+//     const updated = selectedLanguages.map((entry, i) =>
+//       i === idx
+//         ? {
+//             ...entry,
+//             code: newLang
+//           }
+//         : entry
+//     );
+//     setValue(
+//       "displayConfig",
+//       Object.fromEntries(updated.map(entry => [entry.code, entry.screens])),
+//       { shouldValidate: true, shouldDirty: true }
+//     );
+//   };
+
+//   // Add a new row (default language "none")
+//   const handleAddLanguage = () => {
+//     const newEntry = { code: "none", screens: getDefaultScreens() };
+//     const updated = [...selectedLanguages, newEntry];
+//     setValue(
+//       "displayConfig",
+//       Object.fromEntries(updated.map(entry => [entry.code, entry.screens])),
+//       { shouldValidate: true, shouldDirty: true }
+//     );
+//   };
+
+//   // Remove row at index (unless it's the only one left)
+//   const handleRemoveLanguage = (idx: number) => {
+//     if (selectedLanguages.length === 1) return;
+//     const updated = selectedLanguages.filter((_, i) => i !== idx);
+//     setValue(
+//       "displayConfig",
+//       Object.fromEntries(updated.map(entry => [entry.code, entry.screens])),
+//       { shouldValidate: true, shouldDirty: true }
+//     );
+//   };
+
+//   return (
+//     <div className="grid grid-cols-1 gap-4">
+//       {selectedLanguages.map((entry, idx) => (
+//         <div key={idx} className="flex w-full gap-2 items-end">
+//           <div className="flex flex-col flex-1 gap-1">
+//             <label className="text-sm font-semibold">Language {idx + 1}</label>
+//             <Select
+//               value={entry.code}
+//               onValueChange={val => handleLanguageChange(idx, val)}
+//             >
+//               <SelectTrigger className="w-full">
+//                 <SelectValue placeholder="Select language" />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 <SelectItem key="none" value="none">
+//                   None
+//                 </SelectItem>
+//                 {AVAILABLE_LANGUAGES.map(lang => (
+//                   <SelectItem key={lang.code} value={lang.code}>
+//                     {lang.label}
+//                   </SelectItem>
+//                 ))}
+//               </SelectContent>
+//             </Select>
+//           </div>
+//           <Button
+//           variant={'outline'}
+//           type="button"
+//             onClick={() => handleRemoveLanguage(idx)}
+//             disabled={selectedLanguages.length === 1}
+//             aria-label="Remove language"
+//           >
+//             <X/>
+//           </Button>
+//         </div>
+//       ))}
+//       <Button
+//        type="button"
+//         onClick={handleAddLanguage}
+//       >
+//         Add Language
+//       </Button>
+//     </div>
+//   );
+// };
+
+// // ... rest of file ...
+
 export const LanguagesSelector: React.FC = () => {
   const { control, setValue } = useFormContext<DisplayConfig>();
-
-  // Watch for the current displayConfig
   const displayConfig = useWatch({
     control,
     name: "displayConfig"
   }) || {};
 
-  // The order in the selects; if less than 3, fill with "none"
-  const selectedLanguages = Object.keys(displayConfig).concat(Array(3).fill("none")).slice(0, 3);
+  // Always make array of keys for rendering order
+  const languageKeys = Object.keys(displayConfig).length
+    ? Object.keys(displayConfig)
+    : ["none"];
 
-  // Utility: Handle a language select change
-  const handleLanguageChange = (idx: number, newLang: string) => {
-    const current = Object.keys(displayConfig);
-    const newSelectedLanguages = [...selectedLanguages];
-    const prevLang = newSelectedLanguages[idx];
+  // On language or row change
+  const handleLanguageChange = (idx: number, newBaseCode: string) => {
+    const prevLangKey = languageKeys[idx];
+    // Remove the old key, prepare list of others
+    const otherKeys = languageKeys.filter((_, i) => i !== idx);
 
-    // If same, do nothing
-    if (prevLang === newLang) return;
+    // Compute new key (with suffix if needed)
+    const newLangKey = getNextLanguageKey(newBaseCode, otherKeys);
 
-    // Update the selection
-    newSelectedLanguages[idx] = newLang;
-
-        // Remove selections marked "none" or empty
-    const cleanLangs = newSelectedLanguages.filter(l => l !== "none");
-
- 
-
-    // Build a newDisplayConfig with only the currently selected 3
+    // Build new config object...
     const newDisplayConfig: Record<string, Screens> = {};
-    for (const code of cleanLangs) {
-      if (displayConfig[code]) {
-        newDisplayConfig[code] = displayConfig[code];
+    languageKeys.forEach((langKey, i) => {
+      if (i === idx) {
+        newDisplayConfig[newLangKey] =
+          displayConfig[langKey] ?? getDefaultScreens();
       } else {
-        newDisplayConfig[code] = getDefaultScreens();
+        newDisplayConfig[langKey] = displayConfig[langKey];
       }
-    }
+    });
+
+    setValue("displayConfig", newDisplayConfig, { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handleAddLanguage = () => {
+    // Default to first language or "none"
+    const baseCode = "none";
+    const newKey = getNextLanguageKey(baseCode, languageKeys);
+    setValue(
+      "displayConfig",
+      { ...displayConfig, [newKey]: getDefaultScreens() },
+      { shouldValidate: true, shouldDirty: true }
+    );
+  };
+
+  const handleRemoveLanguage = (idx: number) => {
+    if (languageKeys.length === 1) return;
+    const newDisplayConfig = { ...displayConfig };
+    delete newDisplayConfig[languageKeys[idx]];
     setValue("displayConfig", newDisplayConfig, { shouldValidate: true, shouldDirty: true });
   };
 
   return (
-    <div className="grid grid-cols-1  gap-4">
-      {[0, 1, 2].map((idx) => (
-        <div key={idx} className="flex w-full gap-4 flex-col">
-          <label className=" text-sm font-semibold">Language {idx + 1}</label>
-          <Select
-          
-            value={selectedLanguages[idx] || ""}
-            onValueChange={val => handleLanguageChange(idx, val)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select language" />
-            </SelectTrigger>
-            <SelectContent >
-              <SelectItem  key="none" value="none">
-                None
-              </SelectItem>
-              {AVAILABLE_LANGUAGES.map((lang) => (
-                <SelectItem key={lang.code} value={lang.code}>
-                  {lang.label}
+    <div className="grid grid-cols-1 gap-4">
+      {languageKeys.map((langKey, idx) => (
+        <div key={langKey} className="flex w-full gap-2 items-end">
+          <div className="flex flex-col flex-1 gap-1">
+            <label className="text-sm font-semibold">Language {idx + 1}</label>
+            <Select
+              value={getBaseCode(langKey) || "none"}
+              onValueChange={val => handleLanguageChange(idx, val)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem key="none" value="none">
+                  None
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                {AVAILABLE_LANGUAGES.map(lang => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+                    <Button
+          variant={'outline'}
+          type="button"
+            onClick={() => handleRemoveLanguage(idx)}
+            disabled={languageKeys.length === 1}
+            aria-label="Remove language"
+          >
+            <X/>
+          </Button>
         </div>
       ))}
+         <Button
+         type="button"
+          onClick={handleAddLanguage}
+        >
+          Add Language
+        </Button>
     </div>
   );
 };

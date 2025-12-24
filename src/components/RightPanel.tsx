@@ -10,6 +10,7 @@ import { FormatSelect } from "./FormatSelect";
 import { TextPropertiesAccordion } from "./TextPropertiesAccordion";
 import { getTextItemsForFormat } from "./getTextItemsForFormat";
 import { Languages } from "lucide-react";
+import { CopyBoardPropertiesAllButton } from "./CopyBoardPropertiesAllButton";
 
 export function RightPanel() {
   const { selectedTab } = useTabsStore();
@@ -18,7 +19,15 @@ export function RightPanel() {
 
   return (
     <section className="w-[320px] shrink-0 flex flex-col gap-4 overflow-auto bg-sidebar border-l p-4">
+      <Label className="capitalize"> {selectedTab} Board Settings</Label>
+
+      <Label className="text-muted-foreground">Select Board</Label>
+
+      <CopyBoardPropertiesAllButton current={selectedTab as any}/>
+
       <Label>Simulation Settings</Label>
+
+
       <Accordion type="multiple"  className="w-full rounded-md border" >
         {Object.entries(displayConfig).map(([lang, screens]) => {
           const screen = (screens as Screens)[selectedTab];

@@ -9,24 +9,15 @@ const BOARD_SIDES = ["front", "rear", "side", "internal"] as const;
 type BoardSide = typeof BOARD_SIDES[number];
 
 type Props = {
-  lang: string;
+  lang?: string;
   current: BoardSide;
 };
 
-export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) => {
+export const CopyBoardPropertiesAllButton: React.FC<Props> = ({ lang, current }) => {
   const { getValues, setValue } = useFormContext<DisplayConfig>();
   const [target, setTarget] = useState<BoardSide | "">("");
 
-  const handleCopy = () => {
-    if (!target) return;
-    const displayConfig = getValues(`displayConfig.${lang}`) as Screens | undefined;
-    if (!displayConfig) return;
 
-    // Copy FROM current, TO target
-    const fromData = displayConfig[current];
-    if (!fromData) return;
-    setValue(`displayConfig.${lang}.${target}`, JSON.parse(JSON.stringify(fromData)), { shouldDirty: true });
-  };
 
   // MAIN CHANGE: For each language, copy THEIR "current" config to THEIR target
   const handleCopyToAllLanguages = () => {
@@ -64,10 +55,15 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
           ))}
         </SelectContent>
       </Select>
-      <Button type="button" variant="default" size="" className="w-full" onClick={handleCopy} disabled={!target}>
-        Copy This Simulation
+      <Button
+        type="button"
+        variant="default"
+        className="w-full"
+        onClick={handleCopyToAllLanguages}
+        disabled={!target}
+      >
+        Copy Simulations To Other Board
       </Button>
-    
     </div>
   );
 };

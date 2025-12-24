@@ -24,7 +24,7 @@ const RouteCreatePage: React.FC = () => {
 
     const methods = useForm<DisplayConfig>({ defaultValues: defaultValues });
 
-    const { handleSubmit } = methods;
+    const { handleSubmit , getValues} = methods;
 
 
     const onSubmit = (data: DisplayConfig) => {
@@ -40,7 +40,14 @@ const RouteCreatePage: React.FC = () => {
         // Implement logic to view JSON modal/panel
     };
     const handleDownloadJson = () => {
-        // Implement logic to download JSON
+        const values = getValues();
+        const blob = new Blob([JSON.stringify(values, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "route-config.json";
+        a.click();
+        URL.revokeObjectURL(url);
     };
     const handleSaveRoute = () => {
         // Implement logic to save route

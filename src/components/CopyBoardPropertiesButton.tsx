@@ -64,8 +64,9 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
           ))}
         </SelectContent>
       </Select>
+      <div className="space-y-1">
       <Button type="button" variant="default" size="" className="w-full" onClick={handleCopy} disabled={!target}>
-        Copy
+        Copy This Simulation
       </Button>
       <Button
         type="button"
@@ -74,8 +75,9 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
         onClick={handleCopyToAllLanguages}
         disabled={!target}
       >
-        Copy to all languages
+        Copy All Simulations
       </Button>
+      </div>
     </div>
   );
 };

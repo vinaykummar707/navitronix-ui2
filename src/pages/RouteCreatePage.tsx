@@ -12,6 +12,7 @@ import { RouteInfoForm } from "@/components/RouteInfoForm";
 import { LanguagesSelector } from "@/components/LanguagesSelector";
 import { Separator } from "@/components/ui/separator";
 import SimulationPanel from "@/components/SimulationPanel";
+import { LanguageConfigProvider } from "@/context/LanguageConfigContext";
 
 
 
@@ -47,27 +48,49 @@ const RouteCreatePage: React.FC = () => {
 
     return (
 
-        <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(onSubmit)} className="h-screen flex flex-col overflow-hidden">
-                {/* Topbar */}
-                <RouteHeader
-                    title="Testing Playground"
-                    onBack={() => navigate("/home")}
-                    onViewJson={handleViewJson}
-                    onDownloadJson={handleDownloadJson}
-                    onSaveRoute={handleSubmit(onSubmit)}
-                />
+        // <FormProvider {...methods}>
+        //     <form onSubmit={handleSubmit(onSubmit)} className="h-screen flex flex-col overflow-hidden">
+        //         {/* Topbar */}
+        //         <RouteHeader
+        //             title="Testing Playground"
+        //             onBack={() => navigate("/home")}
+        //             onViewJson={handleViewJson}
+        //             onDownloadJson={handleDownloadJson}
+        //             onSaveRoute={handleSubmit(onSubmit)}
+        //         />
 
-                {/* App Body: Each panel gets its own scrolling */}
-                <div className="flex flex-1 min-h-0">
-                    <section className="flex-1 flex">
-                        <LeftPanel />
-                        <SimulationPanel />
-                        <RightPanel />
-                    </section>
-                </div>
+        //         {/* App Body: Each panel gets its own scrolling */}
+        //         <div className="flex flex-1 min-h-0">
+        //             <section className="flex-1 flex">
+        //                 <LeftPanel />
+        //                 <SimulationPanel />
+        //                 <RightPanel />
+        //             </section>
+        //         </div>
+        //     </form>
+        // </FormProvider>
+        <LanguageConfigProvider>
+
+       
+         <FormProvider {...methods}>
+        <div className="w-screen h-screen flex  flex-col overflow-hidden">
+            <RouteHeader
+                title="Testing Playground"
+                onBack={() => navigate("/home")}
+                onViewJson={handleViewJson}
+                onDownloadJson={handleDownloadJson}
+                onSaveRoute={handleSubmit(onSubmit)}
+            />
+            <form className="flex-1 overflow-hidden bg-dotted flex">
+
+                <LeftPanel/>
+                <SimulationPanel/>
+                <RightPanel/>
+                
             </form>
+        </div>
         </FormProvider>
+        </LanguageConfigProvider>
     );
 };
 

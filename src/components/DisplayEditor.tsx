@@ -4,78 +4,88 @@ import useTabsStore from "@/stores/useTabsStore";
 import { getBitmapColumns, getColumnsByBoard } from "@/utils/measurements";
 import type { DisplayConfig, Screen, ScreenFormat, Position } from "@/routeConfig";
 import LEDBitmapSimulator from "./LedSignBoard";
+import { useFontFileByLanguage } from "@/utils/getFontFileByLanguage";
 
 
 
-// Example helper: must be defined elsewhere in real codebase!
-const getFontFileByLanguage = (
-  language: string,
-  fieldKey: string,
-  fontHeight?: number
-) => {
-  // Implement real logic or import
-  return "default-font-path";
-};
+
 
 interface DisplayEditorProps {
   language: string;
 }
 
-export default function DisplayEditor() {
+export default function DisplayEditor({ language }: DisplayEditorProps) {
   // --- App State & Form ---
   const { selectedTab } = useTabsStore();
 
   // react-hook-form context
   const { watch, setValue } = useFormContext<DisplayConfig>();
-  const language = 'en'
-
+ 
+  const getFontFileByLanguage = useFontFileByLanguage();
   // --- Data Extraction ---
   // For now set language to 'en', or watch it from form if you have a selector for it
 
-  // Your DisplayConfig is structured as displayConfig[language][screenKey]
-  const displayConfig = watch(`displayConfig`);
-  console.log(displayConfig)
-  // screenConfig is the 'Screen' interface for the current tab/language
-  const screenConfig: Screen | undefined =
-    displayConfig && displayConfig[language] && displayConfig[language][selectedTab];
+
+  // Only watch the fields you need!
+  const screenConfig = watch(`displayConfig.${language}.${selectedTab}`) as Screen | undefined;
   if (!screenConfig) return null; // Guard for load
 
   // Form fields
   const routeData = watch("route"); // This is RouteInformation
-  const routePosition = "Right"; // Default fallback
 
   // For simplicity, all texts referenced will work if form defaultValues are complete
   // --- Helpers ---
   const stopScroll = false; // Set this as needed, or wire from store/props
   const isSubmitting = false; // Set this if you have a submitting state
 
-  // --- LEDBitmapSimulatorWrapper Inner Component ---
-  const LEDBitmapSimulatorWrapper = ({
-    fieldKey,
-    rows,
-    cols,
-    textConfig,
-    isRouteNumber = false,
-    fontFamily,
-    onBitmapTextChange,
-  }: {
-    fieldKey: string;
-    rows: number;
-    cols: number;
-    textConfig: any;
-    isRouteNumber?: boolean;
-    fontFamily: string;
-    onBitmapTextChange?: (bitmap: string) => void;
-  }) => (
-    <LEDBitmapSimulator
-      stopScroll={stopScroll}
-      rows={rows}
-      cols={cols}
-      text={textConfig}
-      isRouteNumber={isRouteNumber}
-      fontFamily={fontFamily}
-      onBitmapTextChange={() => {}}
-    />
+  // LEDBitmapSimulatorWrapper memoized
+  const LEDBitmapSimulatorWrapper = React.useCallback(
+    ({
+      fieldKey,
+      rows,
+      cols,
+      textConfig,
+      isRouteNumber = false,
+      fontFamily,
+    }: {
+      fieldKey: string;
+      rows: number;
+      cols: number;
+      textConfig: any;
+      isRouteNumber?: boolean;
+      fontFamily: string;
+    }) => {
+      const currentBitmap = watch(
+        `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.bitmap`
+      );
+
+      // Memoize onBitmapTextChange per instance
+      const handleBitmapTextChange = React.useCallback((text: string) => {
+        if (text !== currentBitmap) {
+          setValue(
+            `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.bitmap`,
+            text
+          );
+          setValue(
+            `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.fontWidth`,
+            getBitmapColumns(text)
+          );
+        }
+      }, [currentBitmap, fieldKey, language, selectedTab, setValue]);
+
+      return (
+        <LEDBitmapSimulator
+          stopScroll={stopScroll}
+          rows={rows}
+          cols={cols}
+          text={textConfig}
+          isRouteNumber={isRouteNumber}
+          fontFamily={fontFamily}
+          onBitmapTextChange={handleBitmapTextChange}
+        />
+      );
+    },
+    [language, selectedTab, setValue, stopScroll, watch]
   );
 
   // --- RouteNumberSimulators Inner Component ---
@@ -122,7 +132,7 @@ export default function DisplayEditor() {
   if (screenConfig.format === "single") {
     return (
       <div className="flex flex-col-reverse items-start gap-4">
-        <div className="  border ">
+        <div className="  border-4   ">
           <LEDBitmapSimulatorWrapper
             fieldKey="text"
             rows={16}
@@ -141,12 +151,18 @@ export default function DisplayEditor() {
 
   if (screenConfig.format === "two" || screenConfig.format === "three") {
     const splitRoute = routeData?.splitRoute;
+    const routePosition = !splitRoute ? watch(
+      `displayConfig.${language}.${selectedTab}.texts.sideText.position`
+    ): watch(
+      `displayConfig.${language}.${selectedTab}.texts.routeNumber1.position`
+    )
     const flexRowClass =
       routePosition === "Right" ? "flex-row-reverse" : "flex-row";
 
     const sideTextBitmap = watch(
       `displayConfig.${language}.${selectedTab}.texts.sideText.bitmap`
     );
+    console.log(sideTextBitmap);
     const routeBitmap1 = watch(
       `displayConfig.${language}.${selectedTab}.texts.routeNumber1.bitmap`
     );
@@ -160,7 +176,7 @@ export default function DisplayEditor() {
 
     return (
       <div className="flex flex-col-reverse items-start gap-4">
-        <div className="p-2 bg-neutral-800 border-2 rounded-xl border-neutral-800">
+        <div className=" border-4 ">
           <div className={`flex ${flexRowClass}`}>
             {splitRoute ? (
               <RouteNumberSimulators />

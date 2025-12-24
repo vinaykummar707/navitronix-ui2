@@ -23,12 +23,8 @@ export interface TextConfig {
   scrollType: ScrollType;
   position: Position;
   scrollSpeed: number;
-  fontSize: number;
   fontWeight: FontWeight;
   fontHeight?: number;
-  x_offset?: number;
-  y_offset?: number;
-  spacing?: number;
 }
 
 type ScreenTextKeys = 'sideText' | 'upperHalfText' | 'lowerHalfText' | 'text';

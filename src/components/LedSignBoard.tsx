@@ -93,13 +93,13 @@ const LEDBitmapSimulator = ({
       return `http://3.109.2.66:5288/api/bitmap?text=${
         text.text ? text.text : " "
       }&height=${text.fontHeight}&weight=${
-        text.fontWeight === "bold" ? "Bold" : "Regular"
+        text.fontWeight 
       }&family=${fontFamily}`;
     }
     return `http://3.109.2.66:5288/api/bitmap?text=${
       text.text ? text.text : " "
     }&height=${text.fontHeight}&weight=${
-      text.fontWeight === "bold" ? "Bold" : "Regular"
+      text.fontWeight
     }&family=${fontFamily}&padding=true&pleft=${
       text.position === "Left" ? 1 : 2
     }&pright=${text.position === "Right" ? 1 : 2}`;
@@ -216,7 +216,7 @@ const LEDBitmapSimulator = ({
       {text.text && (
         <canvas
           ref={canvasRef}
-          className="border border-gray-300 mb-4 hidden"
+          className="border rounded-lg border-gray-300 mb-4 hidden"
         ></canvas>
       )}
       {/* <pre className="bg-gray-900 text-amber-400 p-2 rounded overflow-auto font-mono text-sm whitespace-pre">

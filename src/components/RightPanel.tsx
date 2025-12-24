@@ -1,7 +1,7 @@
 import React from "react";
 import useTabsStore from "@/stores/useTabsStore";
 import { useFormContext, useWatch } from "react-hook-form";
-import { getDefaultTextsForFormat } from "@/defaultValues";
+import { AVAILABLE_LANGUAGES, getDefaultTextsForFormat } from "@/defaultValues";
 import type { DisplayConfig, Screens, ScreenFormat } from "@/routeConfig";
 import { CopyBoardPropertiesButton } from "./CopyBoardPropertiesButton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
@@ -9,6 +9,7 @@ import { Label } from "./ui/label";
 import { FormatSelect } from "./FormatSelect";
 import { TextPropertiesAccordion } from "./TextPropertiesAccordion";
 import { getTextItemsForFormat } from "./getTextItemsForFormat";
+import { Languages } from "lucide-react";
 
 export function RightPanel() {
   const { selectedTab } = useTabsStore();
@@ -16,9 +17,9 @@ export function RightPanel() {
   const displayConfig = useWatch({ control, name: "displayConfig" }) || {};
 
   return (
-    <section className="w-[320px] flex flex-col gap-4 overflow-auto bg-sidebar border-l p-4">
+    <section className="w-[320px] shrink-0 flex flex-col gap-4 overflow-auto bg-sidebar border-l p-4">
       <Label>Simulation Settings</Label>
-      <Accordion type="single" collapsible className="w-full rounded-md border" defaultValue="">
+      <Accordion type="multiple"  className="w-full rounded-md border" >
         {Object.entries(displayConfig).map(([lang, screens]) => {
           const screen = (screens as Screens)[selectedTab];
           if (!screen) return null;
@@ -30,7 +31,13 @@ export function RightPanel() {
 
           return (
             <AccordionItem className="bg-accent/50" value={lang} key={lang}>
-              <AccordionTrigger className="px-5">{lang}</AccordionTrigger>
+              <AccordionTrigger className="px-5">
+              <span className='flex items-center gap-4'>
+                <Languages className='size-4 shrink-0' />
+                <span>{AVAILABLE_LANGUAGES.find(l => l.code === lang)?.label || lang}</span>
+              </span>
+                
+                </AccordionTrigger>
               <AccordionContent className="text-muted-foreground flex flex-col gap-4 px-4">
                 <FormatSelect
                   format={currentFormat}

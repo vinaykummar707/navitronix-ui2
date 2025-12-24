@@ -13,6 +13,8 @@ import type { DisplayConfig, TextConfig, ScrollType, Position, FontWeight } from
 
 import { ScrollTypes, Positions, FontWeights } from "@/routeConfig";
 import { IMEInput } from "./IMEInput";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { ArrowRight, ChevronsLeft, ChevronsLeftRight, ChevronsRight } from "lucide-react";
 
 type Props = {
   name: string; // i.e. 'displayConfig.en.front.texts.text'
@@ -48,17 +50,9 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
         <FieldError>{getError(prefix + "text")}</FieldError>
       </Field>
 
-      <Field>
-        <FieldLabel htmlFor={prefix + "bitmap"}>Bitmap</FieldLabel>
-        <Input id={prefix + "bitmap"} {...register(prefix + "bitmap")} />
-        <FieldError>{getError(prefix + "bitmap")}</FieldError>
-      </Field>
+    
 
-      <Field>
-        <FieldLabel htmlFor={prefix + "fontWidth"}>Font Width</FieldLabel>
-        <Input type="number" id={prefix + "fontWidth"} {...register(prefix + "fontWidth", { valueAsNumber: true })} />
-        <FieldError>{getError(prefix + "fontWidth")}</FieldError>
-      </Field>
+      
 
       <Field>
         <FieldLabel htmlFor={prefix + "fontHeight"}>Font Height</FieldLabel>
@@ -66,17 +60,8 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
         <FieldError>{getError(prefix + "fontHeight")}</FieldError>
       </Field>
 
-      <Field>
-        <FieldLabel htmlFor={prefix + "fontSize"}>Font Size</FieldLabel>
-        <Input type="number" id={prefix + "fontSize"} {...register(prefix + "fontSize", { valueAsNumber: true })} />
-        <FieldError>{getError(prefix + "fontSize")}</FieldError>
-      </Field>
+    
 
-      <Field>
-        <FieldLabel htmlFor={prefix + "spacing"}>Spacing</FieldLabel>
-        <Input type="number" id={prefix + "spacing"} {...register(prefix + "spacing", { valueAsNumber: true })} />
-        <FieldError>{getError(prefix + "spacing")}</FieldError>
-      </Field>
 
       <Field>
         <FieldLabel htmlFor={prefix + "scrollSpeed"}>Scroll Speed</FieldLabel>
@@ -84,17 +69,7 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
         <FieldError>{getError(prefix + "scrollSpeed")}</FieldError>
       </Field>
 
-      <Field>
-        <FieldLabel htmlFor={prefix + "x_offset"}>X Offset</FieldLabel>
-        <Input type="number" id={prefix + "x_offset"} {...register(prefix + "x_offset", { valueAsNumber: true })} />
-        <FieldError>{getError(prefix + "x_offset")}</FieldError>
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor={prefix + "y_offset"}>Y Offset</FieldLabel>
-        <Input type="number" id={prefix + "y_offset"} {...register(prefix + "y_offset", { valueAsNumber: true })} />
-        <FieldError>{getError(prefix + "y_offset")}</FieldError>
-      </Field>
+   
 
       <Field>
         <FieldLabel htmlFor={prefix + "fontWeight"}>Font Weight</FieldLabel>
@@ -113,6 +88,8 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
         </Select>
         <FieldError>{getError(prefix + "fontWeight")}</FieldError>
       </Field>
+
+      
 
       <Field>
         <FieldLabel htmlFor={prefix + "scrollType"}>Scroll Type</FieldLabel>

@@ -5,14 +5,12 @@ import { Separator } from "./ui/separator";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 export function LeftPanel() {
-    return <section className="w-[320px] flex flex-col  overflow-auto p-4 gap-4 bg-sidebar  border-r">
+    return <section className="w-[320px] shrink-0 p-4 flex flex-col gap-4 scrollbar-minimal   overflow-auto bg-sidebar border-r">
 
         <p className="text-sm">PID Testing</p>
         <Accordion
-            type="single"
-            collapsible
+            type="multiple"
             className="w-full rounded-md border"
-            defaultValue="Basic"
         >
 
             <AccordionItem className="bg-accent/40" value={'Route Information'} >

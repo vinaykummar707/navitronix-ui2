@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useFormContext, useWatch } from "react-hook-form";
 import type { DisplayConfig, Screens } from "@/routeConfig";
+import { AVAILABLE_LANGUAGES } from "@/defaultValues";
 
 const BOARD_SIDES = ["front", "rear", "side", "internal"] as const;
 type BoardSide = typeof BOARD_SIDES[number];
@@ -27,6 +28,25 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
     setValue(`displayConfig.${lang}.${target}`, JSON.parse(JSON.stringify(fromData)), { shouldDirty: true });
   };
 
+  // MAIN CHANGE: For each language, copy THEIR "current" config to THEIR target
+  const handleCopyToAllLanguages = () => {
+    if (!target) return;
+    const displayConfig = getValues(`displayConfig`);
+    if (!displayConfig) return;
+
+    AVAILABLE_LANGUAGES.forEach(l => {
+      const langBoards = displayConfig[l.code];
+      if (langBoards && langBoards[current] && langBoards[target]) {
+        const fromData = langBoards[current];
+        setValue(
+          `displayConfig.${l.code}.${target}`,
+          JSON.parse(JSON.stringify(fromData)),
+          { shouldDirty: true }
+        );
+      }
+    });
+  };
+
   // Disable copying to self
   const availableTargets = BOARD_SIDES.filter(side => side !== current);
 
@@ -46,6 +66,15 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
       </Select>
       <Button type="button" variant="default" size="" className="w-full" onClick={handleCopy} disabled={!target}>
         Copy
+      </Button>
+      <Button
+        type="button"
+        variant="default"
+        className="w-full"
+        onClick={handleCopyToAllLanguages}
+        disabled={!target}
+      >
+        Copy to all languages
       </Button>
     </div>
   );

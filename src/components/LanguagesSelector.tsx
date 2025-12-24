@@ -2,15 +2,9 @@ import React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { DisplayConfig, Screens, Screen, ScreenFormat } from "@/routeConfig";
+import { AVAILABLE_LANGUAGES } from "@/defaultValues";
 
-const AVAILABLE_LANGUAGES = [
-  { code: "en", label: "English" },
-  { code: "hi", label: "Hindi" },
-  { code: "mr", label: "Marathi" },
-  { code: "gu", label: "Gujarati" },
-  { code: "ta", label: "Tamil" },
-  // ...add more as needed
-];
+
 
 const DEFAULT_SCREEN: Screen = {
   format: "single",

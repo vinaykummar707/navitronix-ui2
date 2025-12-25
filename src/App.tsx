@@ -19,7 +19,7 @@ function App() {
       <Routes>
         {/* Login has no layout */}
         <Route path="/playground" element={<TestingPlayground />} />
-        <Route path="/route-create" element={<RouteCreatePage />} />
+        <Route path="/route-create/:areaId/:depotId" element={<RouteCreatePage />} />
 
         {/* Everything else uses the Layout */}
         <Route path="/home" element={<Layout />}>

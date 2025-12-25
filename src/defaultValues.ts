@@ -137,7 +137,7 @@ export const defaultValues: DisplayConfig = {
             internal: getDefaultScreen('single')
         },
     },
-    version: "",
+    version: "1.0",
     areaId: "",
     depotId: "",
     specialMessages: [],

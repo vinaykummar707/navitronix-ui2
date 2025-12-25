@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { RouteHeader } from "@/components/RouteHeader";
 import useTestingFormStore from "@/stores/useTestingFormStore";
 import useTabsStore from "@/stores/useTabsStore";
@@ -13,32 +13,52 @@ import { LanguagesSelector } from "@/components/LanguagesSelector";
 import { Separator } from "@/components/ui/separator";
 import SimulationPanel from "@/components/SimulationPanel";
 import { LanguageConfigProvider } from "@/context/LanguageConfigContext";
+import { usePostApi } from "@/hooks/useApi";
 
 
 
 
 const RouteCreatePage: React.FC = () => {
     const navigate = useNavigate();
-
-
+    const API_URL = "https://api.navitronix.in/navitranix/api/routes";
+    const { areaId, depotId } = useParams();
 
     const methods = useForm<DisplayConfig>({ defaultValues: defaultValues });
+    const { handleSubmit, getValues, setValue } = methods;
 
-    const { handleSubmit , getValues} = methods;
 
 
-    const onSubmit = (data: DisplayConfig) => {
-        console.log("Form Data", data);
-        // Do your API call or state update
-    };
 
-    const { selectedTab } = useTabsStore();
+    // Mutation hook for creating routes
+    const createRouteMutation = usePostApi(
+        API_URL,
+        (data) => {
+            // onSuccess
+            console.log("Route created successfully!", data);
+            // Optionally navigate or show a success UI
+        },
+        (error) => {
+            // onError
+            console.error("Route creation failed", error);
+            // Optionally notify user
+        },
+    );
+
+    // <-- Ensure form gets updated params into displayConfig -->
+    useEffect(() => {
+        if (areaId) setValue("areaId", areaId);     // If top-level
+        if (depotId) setValue("depotId", depotId);
+        // If they are inside displayConfig object:
+        // if (areaId) setValue("displayConfig.areaId", areaId);
+        // if (depotId) setValue("displayConfig.depotId", depotId);
+    }, [areaId, depotId, setValue]);
 
 
     // Header button handlers (fill these as needed for your app)
     const handleViewJson = () => {
         // Implement logic to view JSON modal/panel
     };
+
     const handleDownloadJson = () => {
         const values = getValues();
         const blob = new Blob([JSON.stringify(values, null, 2)], { type: "application/json" });
@@ -49,54 +69,36 @@ const RouteCreatePage: React.FC = () => {
         a.click();
         URL.revokeObjectURL(url);
     };
-    const handleSaveRoute = () => {
-        // Implement logic to save route
+
+
+    const onSubmit = (data: DisplayConfig) => {
+        console.log("Form Data", data);
+        // Do your API call or state update
+        createRouteMutation.mutate(data);
     };
 
     return (
-
-        // <FormProvider {...methods}>
-        //     <form onSubmit={handleSubmit(onSubmit)} className="h-screen flex flex-col overflow-hidden">
-        //         {/* Topbar */}
-        //         <RouteHeader
-        //             title="Testing Playground"
-        //             onBack={() => navigate("/home")}
-        //             onViewJson={handleViewJson}
-        //             onDownloadJson={handleDownloadJson}
-        //             onSaveRoute={handleSubmit(onSubmit)}
-        //         />
-
-        //         {/* App Body: Each panel gets its own scrolling */}
-        //         <div className="flex flex-1 min-h-0">
-        //             <section className="flex-1 flex">
-        //                 <LeftPanel />
-        //                 <SimulationPanel />
-        //                 <RightPanel />
-        //             </section>
-        //         </div>
-        //     </form>
-        // </FormProvider>
         <LanguageConfigProvider>
+            <FormProvider {...methods}>
+                <div className="w-screen h-screen flex  flex-col overflow-hidden">
+                    <RouteHeader
+                        title="Testing Playground"
+                        onBack={() => navigate("https://navitronix.in/home/routes")}
+                        onViewJson={handleViewJson}
+                        onDownloadJson={handleDownloadJson}
+                        onSaveRoute={handleSubmit(onSubmit)}
+                    />
+                    <div className="flex-1 overflow-hidden bg-dotted flex">
+                        
+                        <LeftPanel />
+                        <SimulationPanel />
+                        <RightPanel />
 
-       
-         <FormProvider {...methods}>
-        <div className="w-screen h-screen flex  flex-col overflow-hidden">
-            <RouteHeader
-                title="Testing Playground"
-                onBack={() => navigate("/home")}
-                onViewJson={handleViewJson}
-                onDownloadJson={handleDownloadJson}
-                onSaveRoute={handleSubmit(onSubmit)}
-            />
-            <form className="flex-1 overflow-hidden bg-dotted flex">
+                       
 
-                <LeftPanel/>
-                <SimulationPanel/>
-                <RightPanel/>
-                
-            </form>
-        </div>
-        </FormProvider>
+                    </div>
+                </div>
+            </FormProvider>
         </LanguageConfigProvider>
     );
 };

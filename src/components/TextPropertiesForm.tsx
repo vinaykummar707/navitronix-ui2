@@ -1,5 +1,5 @@
 import React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -27,6 +27,23 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
   const prefix = name ? name + "." : "";
 
   const langCode = name.split(".")[1];
+  const route = useWatch({ control, name: "route" }) ?? {};
+
+    // Generate example text combos
+    const autoTextCombinations = [
+      [route.routeNumber, route.source, route.destination, route.via].filter(Boolean).join(" - "),
+      [route.source, route.destination].filter(Boolean).join(" - "),
+      [route.routeNumber, route.source].filter(Boolean).join(" - "),
+      [route.routeNumber, route.destination].filter(Boolean).join(" - "),
+      [route.source, route.via, route.destination].filter(Boolean).join(" - "),
+      [route.routeNumber, route.source, route.destination].filter(Boolean).join(" - "),
+      [route.destination, route.source].filter(Boolean).join(" - "),
+    ]
+      .filter(
+        (str, idx, arr) =>
+          !!str && str.replace(/-/g, "").trim() !== "" &&   // No empty strings
+          arr.indexOf(str) === idx                          // Remove duplicates
+      );
 
   // For deep errors
   function getError(field: string) {
@@ -40,13 +57,32 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
       <Field className="">
         <FieldLabel htmlFor={prefix + "text"}>Text</FieldLabel>
         {/* Use IMEInput for transliteration */}
-        <IMEInput
-            id={prefix + "text"}
-            langCode={langCode}
-            value={watch(prefix + "text")}
-            onChange={(val) => setValue(prefix + "text", val, { shouldDirty: true, shouldValidate: true })}
-            placeholder="Type in English..."
-          />
+        <div className="grid grid-cols-1 gap-2">
+            <IMEInput
+              id={prefix + "text"}
+              langCode={langCode}
+              value={watch(prefix + "text")}
+              onChange={(val) => setValue(prefix + "text", val, { shouldDirty: true, shouldValidate: true })}
+              placeholder="Type in English..."
+            />
+            {autoTextCombinations.length > 0 && (
+              <Select
+                value=""
+                onValueChange={val => setValue(prefix + "text", val, { shouldDirty: true, shouldValidate: true })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Auto Text..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {autoTextCombinations.map((combo, idx) => (
+                    <SelectItem key={idx} value={combo}>
+                      {combo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
         <FieldError>{getError(prefix + "text")}</FieldError>
       </Field>
 

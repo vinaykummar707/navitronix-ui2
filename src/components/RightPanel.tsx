@@ -18,7 +18,7 @@ export function RightPanel() {
   const displayConfig = useWatch({ control, name: "displayConfig" }) || {};
 
   return (
-    <section className="w-[320px] shrink-0 flex flex-col gap-4 overflow-auto bg-sidebar border-l p-4">
+    <section className="w-[300px] shrink-0 flex flex-col gap-4  scrollbar-minimal overflow-auto bg-sidebar border-l p-4">
       <Label className="capitalize"> {selectedTab} Board Settings</Label>
 
       <Label className="text-muted-foreground">Select Board</Label>
@@ -40,7 +40,7 @@ export function RightPanel() {
 
           return (
             <AccordionItem className="bg-accent/50" value={lang} key={lang}>
-              <AccordionTrigger className="px-5">
+              <AccordionTrigger className="px-4">
               <span className='flex items-center gap-4'>
                 <Languages className='size-4 shrink-0' />
                 <span>{AVAILABLE_LANGUAGES.find(l => l.code === lang)?.label || lang}</span>

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import useTabsStore from "@/stores/useTabsStore";
 import { getBitmapColumns, getColumnsByBoard } from "@/utils/measurements";
 import type { DisplayConfig, Screen, ScreenFormat, Position } from "@/routeConfig";
 import LEDBitmapSimulator from "./LedSignBoard";
 import { useFontFileByLanguage } from "@/utils/getFontFileByLanguage";
+import { Button } from "./ui/button";
+import { Play, StopCircle } from "lucide-react";
 
 
 
@@ -20,11 +22,12 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
 
   // react-hook-form context
   const { watch, setValue } = useFormContext<DisplayConfig>();
- 
+
   const getFontFileByLanguage = useFontFileByLanguage();
   // --- Data Extraction ---
   // For now set language to 'en', or watch it from form if you have a selector for it
 
+  const [isScrollStopped, setIsScrollStopped] = useState(false);
 
   // Only watch the fields you need!
   const screenConfig = watch(`displayConfig.${language}.${selectedTab}`) as Screen | undefined;
@@ -36,6 +39,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
   // For simplicity, all texts referenced will work if form defaultValues are complete
   // --- Helpers ---
   const stopScroll = false; // Set this as needed, or wire from store/props
+
   const isSubmitting = false; // Set this if you have a submitting state
 
   // LEDBitmapSimulatorWrapper memoized
@@ -47,6 +51,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
       textConfig,
       isRouteNumber = false,
       fontFamily,
+      stopScroll,
     }: {
       fieldKey: string;
       rows: number;
@@ -54,6 +59,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
       textConfig: any;
       isRouteNumber?: boolean;
       fontFamily: string;
+      stopScroll: boolean;
     }) => {
       const currentBitmap = watch(
         `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.bitmap`
@@ -82,6 +88,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
           isRouteNumber={isRouteNumber}
           fontFamily={fontFamily}
           onBitmapTextChange={handleBitmapTextChange}
+
         />
       );
     },
@@ -111,6 +118,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
             "routeNumber1",
             screenConfig.texts.routeNumber1?.fontHeight
           )}
+          stopScroll={isScrollStopped}
         />
         <LEDBitmapSimulatorWrapper
           fieldKey="routeNumber2"
@@ -123,6 +131,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
             "routeNumber2",
             screenConfig.texts.routeNumber2?.fontHeight
           )}
+          stopScroll={isScrollStopped}
         />
       </div>
     );
@@ -132,17 +141,34 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
   if (screenConfig.format === "single") {
     return (
       <div className="flex flex-col-reverse items-start gap-4">
+        <div className="mb-2 flex gap-2">
+          <Button
+            variant={isScrollStopped ? "default" : "outline"}
+            onClick={() => setIsScrollStopped(false)}
+          >
+            <Play />
+            Play
+          </Button>
+          <Button
+            variant={!isScrollStopped ? "default" : "outline"}
+            onClick={() => setIsScrollStopped(true)}
+          >
+            <StopCircle />
+            Pause
+          </Button>
+        </div>
         <div className="  border-4   ">
           <LEDBitmapSimulatorWrapper
             fieldKey="text"
-            rows={16}
-            cols={getColumnsByBoard(selectedTab, screenConfig.format)}
+            rows={screenConfig.height}
+            cols={screenConfig.width}
             textConfig={screenConfig.texts?.text}
             fontFamily={getFontFileByLanguage(
               language,
               "text",
               screenConfig.texts.text?.fontHeight
             )}
+            stopScroll={isScrollStopped}
           />
         </div>
       </div>
@@ -153,7 +179,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
     const splitRoute = routeData?.splitRoute;
     const routePosition = !splitRoute ? watch(
       `displayConfig.${language}.${selectedTab}.texts.sideText.position`
-    ): watch(
+    ) : watch(
       `displayConfig.${language}.${selectedTab}.texts.routeNumber1.position`
     )
     const flexRowClass =
@@ -176,12 +202,29 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
 
     return (
       <div className="flex flex-col-reverse items-start gap-4">
-        <div className=" border-4 ">
+        <div className="mb-2 flex gap-2">
+          <Button
+            variant={isScrollStopped ? "default" : "outline"}
+            onClick={() => setIsScrollStopped(false)}
+          >
+            <Play />
+            Play
+          </Button>
+          <Button
+            variant={!isScrollStopped ? "default" : "outline"}
+            onClick={() => setIsScrollStopped(true)}
+          >
+            <StopCircle />
+            Stop
+          </Button>
+        </div>
+        <div className=" border-4  ">
           <div className={`flex ${flexRowClass}`}>
             {splitRoute ? (
               <RouteNumberSimulators />
             ) : (
               <LEDBitmapSimulatorWrapper
+
                 fieldKey="sideText"
                 rows={16}
                 cols={getBitmapColumns(sideTextBitmap) + 1}
@@ -192,15 +235,16 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
                   "sideText",
                   screenConfig.texts.sideText?.fontHeight
                 )}
+                stopScroll={isScrollStopped}
               />
             )}
 
             {screenConfig.format === "two" ? (
               <LEDBitmapSimulatorWrapper
                 fieldKey="text"
-                rows={16}
+                rows={screenConfig.height}
                 cols={
-                  getColumnsByBoard(selectedTab, screenConfig.format) - leftCols
+                  screenConfig.width - leftCols
                 }
                 textConfig={screenConfig.texts?.text}
                 fontFamily={getFontFileByLanguage(
@@ -208,14 +252,15 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
                   "text",
                   screenConfig.texts.text?.fontHeight
                 )}
+                stopScroll={isScrollStopped}
               />
             ) : (
               <div className="flex flex-col">
                 <LEDBitmapSimulatorWrapper
                   fieldKey="upperHalfText"
-                  rows={8}
+                  rows={screenConfig.height / 2}
                   cols={
-                    getColumnsByBoard(selectedTab, screenConfig.format) -
+                    screenConfig.width -
                     getBitmapColumns(sideTextBitmap)
                   }
                   textConfig={screenConfig.texts?.upperHalfText}
@@ -224,12 +269,13 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
                     "upperHalfText",
                     screenConfig.texts.upperHalfText?.fontHeight
                   )}
+                  stopScroll={isScrollStopped}
                 />
                 <LEDBitmapSimulatorWrapper
                   fieldKey="lowerHalfText"
-                  rows={8}
+                  rows={screenConfig.height / 2}
                   cols={
-                    getColumnsByBoard(selectedTab, screenConfig.format) -
+                    screenConfig.width -
                     getBitmapColumns(sideTextBitmap)
                   }
                   textConfig={screenConfig.texts?.lowerHalfText}
@@ -238,6 +284,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
                     "lowerHalfText",
                     screenConfig.texts.lowerHalfText?.fontHeight
                   )}
+                  stopScroll={isScrollStopped}
                 />
               </div>
             )}

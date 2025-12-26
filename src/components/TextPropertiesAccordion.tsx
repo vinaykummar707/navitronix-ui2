@@ -17,10 +17,10 @@ export function TextPropertiesAccordion({ items }: { items: Item[] }) {
           <AccordionTrigger className="px-4">
           <span className='flex items-center gap-4'>
                 <ALargeSmall className='size-4 shrink-0' />
-                <span>{label} Properties</span>
+                <span>{label}</span>
               </span>
           </AccordionTrigger>
-          <AccordionContent className="text-muted-foreground flex flex-col p-2">
+          <AccordionContent className=" flex flex-col p-2">
             <TextPropertiesForm name={name} heading={label} />
           </AccordionContent>
         </AccordionItem>

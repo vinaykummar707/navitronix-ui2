@@ -1,4 +1,4 @@
-export const ScrollTypes = ['Left To Right', 'Right To Left', 'Fixed', 'Flicker'] as const;
+export const ScrollTypes = ['Left To Right', 'Right To Left', 'Fixed'] as const;
 export type ScrollType = typeof ScrollTypes[number];
 
 export const Positions = ['Left', 'Right', 'Center'] as const;
@@ -9,6 +9,26 @@ export type ScreenFormat = typeof ScreenFormats[number];
 
 export const FontWeights = ['Regular', 'Bold'] as const;
 export type FontWeight = typeof FontWeights[number];
+
+// Add these constants for default sizes:
+export const DEFAULT_SCREEN_HEIGHTS = [16, 32] as const;
+export type ScreenHeight = typeof DEFAULT_SCREEN_HEIGHTS[number];
+
+export const DEFAULT_SCREEN_WIDTHS = [64, 96, 128, 160, 192, 224] as const;
+export type ScreenWidth = typeof DEFAULT_SCREEN_WIDTHS[number];
+
+export const SCROLL_SPEED_PRESETS = [
+  { label: "Very Slow", value: 9 },
+  { label: "Slow", value: 6 },
+  { label: "Normal", value: 4 },
+  { label: "Medium Fast", value: 3 },
+  { label: "Very Fast", value: 1 },
+] as const;
+
+export type ScrollSpeedPresetLabel = typeof SCROLL_SPEED_PRESETS[number]['label'];
+export type ScrollSpeedPresetValue = typeof SCROLL_SPEED_PRESETS[number]['value'];
+
+
 
 export interface BitmapTranslations {
   bitmap: string;
@@ -40,6 +60,8 @@ type ThreeScreenTexts = ScreenTexts<['sideText', 'upperHalfText', 'lowerHalfText
 export interface Screen {
   format: ScreenFormat;
   texts: SingleScreenTexts | TwoScreenTexts | ThreeScreenTexts;
+  height: ScreenHeight;
+  width: ScreenWidth;
 }
 
 export interface Screens {

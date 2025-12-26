@@ -28,7 +28,6 @@ export const scrollTypes: ScrollType[] = [
     "Left To Right",
     "Right To Left",
     "Fixed",
-    "Flicker",
 ];
 export const positions: Position[] = ["Left", "Right", "Center"];
 export const fontWeights: FontWeight[] = ["Regular", "Bold"];
@@ -57,11 +56,36 @@ export const getDefaultTextConfigRouteNumber = () => ({
     fontHeight: 12,
 });
 
+export const getDefaultTextConfigRouteNumber1 = () => ({
+    text: "56A",
+    bitmap: "",
+    fontWidth: 12,
+    scrollType: "Fixed" as ScrollType,
+    position: "Center" as Position,
+    scrollSpeed: 1,
+    fontWeight: "Regular" as FontWeight,
+    fontHeight: 12,
+});
+
+
+export const getDefaultTextConfigRouteNumber2 = () => ({
+    text: "456",
+    bitmap: "",
+    fontWidth: 12,
+    scrollType: "Fixed" as ScrollType,
+    position: "Center" as Position,
+    scrollSpeed: 1,
+    fontWeight: "Regular" as FontWeight,
+    fontHeight: 12,
+});
+
 
 // Provide correct text config for each screen format
 export function getDefaultTextsForFormat(format: ScreenFormat) {
     const base = getDefaultTextConfig();
     const base2 = getDefaultTextConfigRouteNumber();
+    const base3 = getDefaultTextConfigRouteNumber1();
+    const base4 = getDefaultTextConfigRouteNumber2();
     if (format === "single") {
         return { text: { ...base } };
     }
@@ -89,6 +113,9 @@ export function getDefaultScreen(format: ScreenFormat = "single") {
     return {
         format,
         texts: getDefaultTextsForFormat(format),
+        height:16,
+        width: 96
+
     };
 }
 

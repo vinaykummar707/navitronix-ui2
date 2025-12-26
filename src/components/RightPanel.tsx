@@ -11,6 +11,7 @@ import { TextPropertiesAccordion } from "./TextPropertiesAccordion";
 import { getTextItemsForFormat } from "./getTextItemsForFormat";
 import { Languages } from "lucide-react";
 import { CopyBoardPropertiesAllButton } from "./CopyBoardPropertiesAllButton";
+import { ScreenSizeSelect } from "./ScreenSizeSelect";
 
 export function RightPanel() {
   const { selectedTab } = useTabsStore();
@@ -18,10 +19,10 @@ export function RightPanel() {
   const displayConfig = useWatch({ control, name: "displayConfig" }) || {};
 
   return (
-    <section className="w-[300px] shrink-0 flex flex-col gap-4  scrollbar-minimal overflow-auto bg-sidebar border-l p-4">
+    <section className="w-[340px] shrink-0 flex flex-col gap-4  scrollbar-minimal overflow-auto bg-sidebar border-l p-4">
       <Label className="capitalize"> {selectedTab} Board Settings</Label>
 
-      <Label className="text-muted-foreground">Copy To Board</Label>
+      <Label className="">Copy To Board</Label>
 
       <CopyBoardPropertiesAllButton current={selectedTab as any}/>
 
@@ -35,11 +36,13 @@ export function RightPanel() {
 
           const formatField = `displayConfig.${lang}.${selectedTab}.format` as const;
           const textsField = `displayConfig.${lang}.${selectedTab}.texts` as const;
+          const height = `displayConfig.${lang}.${selectedTab}.height` as const;
+          const width = `displayConfig.${lang}.${selectedTab}.width` as const;
           const currentFormat: ScreenFormat = watch(formatField);
           const items = getTextItemsForFormat(currentFormat, lang, selectedTab);
 
           return (
-            <AccordionItem className="bg-accent/50" value={lang} key={lang}>
+            <AccordionItem className="bg-accent/0" value={lang} key={lang}>
               <AccordionTrigger className="px-4">
               <span className='flex items-center gap-4'>
                 <Languages className='size-4 shrink-0' />
@@ -47,18 +50,22 @@ export function RightPanel() {
               </span>
                 
                 </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground flex flex-col gap-4 px-4">
+              <AccordionContent className=" flex flex-col gap-4 px-4">
+              <ScreenSizeSelect fieldPrefix={`displayConfig.${lang}.${selectedTab}`}/>
                 <FormatSelect
+                langCode= {lang}
                   format={currentFormat}
                   onChange={next => {
                     setValue(formatField, next, { shouldDirty: true, shouldValidate: true });
                     setValue(textsField, getDefaultTextsForFormat(next), { shouldDirty: true, shouldValidate: true });
+                    setValue(height, 16, { shouldDirty: true, shouldValidate: true });
+                    setValue(width, 96, { shouldDirty: true, shouldValidate: true });
                   }}
                 />
                 <Label>Copy This Simulation</Label>
                 <CopyBoardPropertiesButton lang={lang} current={selectedTab as any} />
                 <Label>Text Properties</Label>
-                <TextPropertiesAccordion items={items} />
+                <TextPropertiesAccordion  items={items} />
               </AccordionContent>
             </AccordionItem>
           );

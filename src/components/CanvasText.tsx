@@ -88,6 +88,7 @@ const LEDMatrix: React.FC<LEDMatrixProps> = ({
 
       // When no marquee, apply alignment for patterns smaller than canvas
       if (marqueeDirection === "none" && patternPixelWidth < canvasWidth) {
+        currentScrollPositionRef.current = 0
         switch (alignment) {
           case "center":
             staticStartX = Math.floor((canvasWidth - patternPixelWidth) / 2);
@@ -251,7 +252,7 @@ const LEDMatrix: React.FC<LEDMatrixProps> = ({
     };
 
     // Initialize scroll position when marquee direction changes or on mount
-    currentScrollPositionRef.current = 0;
+   
     animate();
 
     return () => {

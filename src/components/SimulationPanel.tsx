@@ -10,7 +10,7 @@ export default function SimulationPanel() {
   const displayConfig = watch(`displayConfig`);
   const languages = Object.keys(displayConfig || {});
 
-  return <section className="flex-1 p-4 flex flex-col items-center gap-4 bg-dotted">
+  return <section className="flex-1 px-8 py-4 flex flex-col overflow-auto scrollbar-minimal gap-4 bg-dotted">
     <TabsSoftPillsDemo/>
 
     {languages.map((lang) => (

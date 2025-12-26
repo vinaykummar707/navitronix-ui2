@@ -68,14 +68,14 @@ export const RouteInfoForm: React.FC = () => {
           )}
         </Field>
       
-        <Field orientation="horizontal">
+        {/* <Field orientation="horizontal">
           <Checkbox
             id="route.splitRoute"
             checked={!!watch("route.splitRoute")}
             onCheckedChange={v => setValue("route.splitRoute", Boolean(v))}
           />
           <FieldLabel htmlFor="route.splitRoute">Split Route</FieldLabel>
-        </Field>
+        </Field> */}
         <Field orientation="horizontal">
           <Checkbox
             id="route.showRt"

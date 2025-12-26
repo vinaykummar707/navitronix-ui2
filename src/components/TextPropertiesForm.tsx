@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/field";
 import type { DisplayConfig, TextConfig, ScrollType, Position, FontWeight } from "@/routeConfig";
 
-import { ScrollTypes, Positions, FontWeights } from "@/routeConfig";
+import { ScrollTypes, Positions, FontWeights, SCROLL_SPEED_PRESETS } from "@/routeConfig";
 import { IMEInput } from "./IMEInput";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { ArrowRight, ChevronsLeft, ChevronsLeftRight, ChevronsRight } from "lucide-react";
@@ -54,7 +54,7 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
   // You could show a heading if wanted
   return (
     <FieldGroup className=" px-2 pb-4 ">
-      <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-4">
         <Field className="">
           <FieldLabel htmlFor={prefix + "text"}>Text</FieldLabel>
           {/* Use IMEInput for transliteration */}
@@ -87,13 +87,27 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
 
 
 
-
         <Field>
           <FieldLabel htmlFor={prefix + "scrollSpeed"}>Scroll Speed</FieldLabel>
-          <Input type="number" id={prefix + "scrollSpeed"} {...register(prefix + "scrollSpeed", { valueAsNumber: true })} />
+          <Select
+            value={
+              String(watch(prefix + "scrollSpeed") ?? "")
+            }
+            onValueChange={val => setValue(prefix + "scrollSpeed", Number(val), { shouldDirty: true, shouldValidate: true })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select scroll speed" />
+            </SelectTrigger>
+            <SelectContent>
+              {SCROLL_SPEED_PRESETS.map(preset => (
+                <SelectItem key={preset.value} value={String(preset.value)}>
+                  {preset.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <FieldError>{getError(prefix + "scrollSpeed")}</FieldError>
         </Field>
-
 
 
         <Field>

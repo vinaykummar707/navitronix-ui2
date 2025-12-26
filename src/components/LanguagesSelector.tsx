@@ -8,6 +8,8 @@ import { AVAILABLE_LANGUAGES } from "@/defaultValues";
 
 const DEFAULT_SCREEN: Screen = {
   format: "single",
+  height: 16,
+  width:96,
   texts: {
     text: {
       text: "",

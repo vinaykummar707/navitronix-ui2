@@ -101,8 +101,8 @@ const LEDBitmapSimulator = ({
     }&height=${text.fontHeight}&weight=${
       text.fontWeight
     }&family=${fontFamily}&padding=true&pleft=${
-      text.position === "Left" ? 1 : 2
-    }&pright=${text.position === "Right" ? 1 : 2}`;
+      text.position === "Left" ? 1 : 1
+    }&pright=${text.position === "Right" ? 1 : 1}`;
   };
 
   useEffect(() => {

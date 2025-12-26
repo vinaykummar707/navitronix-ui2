@@ -150,7 +150,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
             Play
           </Button>
           <Button
-            variant={!isScrollStopped ? "default" : "outline"}
+            variant={!isScrollStopped ? "destructive" : "outline"}
             onClick={() => setIsScrollStopped(true)}
           >
             <StopCircle />
@@ -211,7 +211,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
             Play
           </Button>
           <Button
-            variant={!isScrollStopped ? "default" : "outline"}
+            variant={!isScrollStopped ? "destructive" : "outline"}
             onClick={() => setIsScrollStopped(true)}
           >
             <StopCircle />

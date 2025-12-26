@@ -4,6 +4,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { useFormContext, useWatch } from "react-hook-form";
 import type { DisplayConfig, Screens } from "@/routeConfig";
 import { AVAILABLE_LANGUAGES } from "@/defaultValues";
+import { toast } from "sonner";
 
 const BOARD_SIDES = ["front", "rear", "side", "internal"] as const;
 type BoardSide = typeof BOARD_SIDES[number];
@@ -26,6 +27,10 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
     const fromData = displayConfig[current];
     if (!fromData) return;
     setValue(`displayConfig.${lang}.${target}`, JSON.parse(JSON.stringify(fromData)), { shouldDirty: true });
+     // Show shadcn toast after copying
+     toast.success("Simulation copied!",{
+      description: `Simulation properties copied to the "${target}" board.`,
+    });
   };
 
   // MAIN CHANGE: For each language, copy THEIR "current" config to THEIR target

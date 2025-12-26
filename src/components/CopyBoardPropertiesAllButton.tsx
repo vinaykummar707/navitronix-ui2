@@ -4,6 +4,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { useFormContext, useWatch } from "react-hook-form";
 import type { DisplayConfig, Screens } from "@/routeConfig";
 import { AVAILABLE_LANGUAGES } from "@/defaultValues";
+import { toast } from "sonner";
 
 const BOARD_SIDES = ["front", "rear", "side", "internal"] as const;
 type BoardSide = typeof BOARD_SIDES[number];
@@ -35,6 +36,11 @@ export const CopyBoardPropertiesAllButton: React.FC<Props> = ({ lang, current })
           { shouldDirty: true }
         );
       }
+    });
+
+     // Show shadcn toast after copying
+     toast.success("Simulations copied!",{
+      description: `Simulation properties copied to all languages for the "${target}" board.`,
     });
   };
 

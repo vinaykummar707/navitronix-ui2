@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { ThemeProvider } from './components/ui/ThemeProvider.tsx'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import Layout from './components/layout.tsx'
+import { Toaster } from './components/ui/sonner.tsx'
 
 
 const client = new QueryClient();
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider>
       <QueryClientProvider client={client}>
         <App />
+        <Toaster  position='bottom-center'/>
       </QueryClientProvider>
     </ThemeProvider>
   </StrictMode>,

@@ -16,6 +16,7 @@ import { LanguageConfigProvider } from "@/context/LanguageConfigContext";
 import { usePostApi } from "@/hooks/useApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 
 
@@ -36,11 +37,13 @@ const RouteCreatePage: React.FC = () => {
         (data) => {
             // onSuccess
             console.log("Route created successfully!", data);
+            toast.success('Route Saved Successfully')
             // Optionally navigate or show a success UI
         },
         (error) => {
             // onError
             console.error("Route creation failed", error);
+            toast.error("Route Failed To Save")
             // Optionally notify user
         },
     );

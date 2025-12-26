@@ -16,6 +16,7 @@ import { IMEInput } from "./IMEInput";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { ArrowRight, ChevronsLeft, ChevronsLeftRight, ChevronsRight } from "lucide-react";
 import AutoTextGenerator from "./AutoTextGenerator";
+import { getBitmapHeight } from "@/utils/measurements";
 
 type Props = {
   name: string; // i.e. 'displayConfig.en.front.texts.text'
@@ -29,6 +30,8 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
 
   const langCode = name.split(".")[1];
   const route = useWatch({ control, name: "route" }) ?? {};
+
+  const bitmap = watch(prefix + 'bitmap')
 
   // Generate example text combos
   const autoTextCombinations = [
@@ -82,6 +85,7 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
         <Field>
           <FieldLabel htmlFor={prefix + "fontHeight"}>Font Height</FieldLabel>
           <Input type="number" id={prefix + "fontHeight"} {...register(prefix + "fontHeight", { valueAsNumber: true })} />
+          <FieldDescription>Bitmap Height: {getBitmapHeight(bitmap)} </FieldDescription>
           <FieldError>{getError(prefix + "fontHeight")}</FieldError>
         </Field>
 

@@ -21,14 +21,14 @@ export function RightPanel() {
     <section className="w-[300px] shrink-0 flex flex-col gap-4  scrollbar-minimal overflow-auto bg-sidebar border-l p-4">
       <Label className="capitalize"> {selectedTab} Board Settings</Label>
 
-      <Label className="text-muted-foreground">Select Board</Label>
+      <Label className="text-muted-foreground">Copy To Board</Label>
 
       <CopyBoardPropertiesAllButton current={selectedTab as any}/>
 
       <Label>Simulation Settings</Label>
 
 
-      <Accordion type="multiple"  className="w-full rounded-md border" >
+      <Accordion   type="multiple"  className="w-full rounded-md border" >
         {Object.entries(displayConfig).map(([lang, screens]) => {
           const screen = (screens as Screens)[selectedTab];
           if (!screen) return null;
@@ -55,7 +55,7 @@ export function RightPanel() {
                     setValue(textsField, getDefaultTextsForFormat(next), { shouldDirty: true, shouldValidate: true });
                   }}
                 />
-                <Label>Copy Simulation</Label>
+                <Label>Copy This Simulation</Label>
                 <CopyBoardPropertiesButton lang={lang} current={selectedTab as any} />
                 <Label>Text Properties</Label>
                 <TextPropertiesAccordion items={items} />

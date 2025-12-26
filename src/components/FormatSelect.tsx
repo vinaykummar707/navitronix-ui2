@@ -12,7 +12,7 @@ interface FormatSelectProps {
 export function FormatSelect({ format, onChange }: FormatSelectProps) {
   return (
     <>
-      <Label>Choose Format</Label>
+      <Label>Choose Simulation Format</Label>
       <Select value={format} onValueChange={onChange}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select format" />

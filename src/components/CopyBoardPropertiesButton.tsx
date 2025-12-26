@@ -54,7 +54,7 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
     <div className="flex flex-col gap-4 items-center ">
       <Select value={target} onValueChange={setTarget}>
         <SelectTrigger className="w-full">
-          <SelectValue placeholder="Copy to..." />
+          <SelectValue placeholder="Select Board" />
         </SelectTrigger>
         <SelectContent>
           {availableTargets.map(side => (
@@ -65,7 +65,7 @@ export const CopyBoardPropertiesButton: React.FC<Props> = ({ lang, current }) =>
         </SelectContent>
       </Select>
       <Button type="button" variant="default" size="" className="w-full" onClick={handleCopy} disabled={!target}>
-        Copy This Simulation
+        Copy Simulation
       </Button>
     
     </div>

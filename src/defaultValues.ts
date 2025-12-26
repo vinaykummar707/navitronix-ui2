@@ -14,7 +14,7 @@ export const defaultRoute: RouteInformation = {
     routeNumber1: "",
     routeNumber2: "",
     separation: "",
-    showRt: false,
+    showRt: true,
     showSpm: false,
     showBoth: false,
 };

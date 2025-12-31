@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Eye, Download, Save } from "lucide-react";
+import type { ReactNode } from "react";
 
 type RouteHeaderProps = {
   title: string;
@@ -8,6 +9,7 @@ type RouteHeaderProps = {
   onDownloadJson?: () => void;
   onSaveRoute?: () => void;
   className?: string;
+   actionButton?: ReactNode;
 };
 
 export function RouteHeader({
@@ -17,6 +19,7 @@ export function RouteHeader({
   onDownloadJson,
   onSaveRoute,
   className = "",
+  actionButton,
 }: RouteHeaderProps) {
   return (
     <header
@@ -37,9 +40,14 @@ export function RouteHeader({
         <Button size="sm" variant="secondary" onClick={onDownloadJson}>
           <Download /> Download Json
         </Button>
-        <Button type="submit" size="sm" variant="" onClick={onSaveRoute}>
-          <Save /> Save Route
-        </Button>
+          {/* Render custom action button if provided, else fallback */}
+        {actionButton ? (
+          actionButton
+        ) : (
+          <Button type="submit" size="sm" variant="default" onClick={onSaveRoute}>
+            <Save /> Save Route
+          </Button>
+        )}
       </div>
     </header>
   );

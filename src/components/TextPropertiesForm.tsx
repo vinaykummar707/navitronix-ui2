@@ -66,7 +66,7 @@ export const TextPropertiesForm: React.FC<Props> = ({ name, heading }) => {
               id={prefix + "text"}
               langCode={langCode}
               value={watch(prefix + "text")}
-              onChange={(val) => setValue(prefix + "text", val, { shouldDirty: true, shouldValidate: true })}
+              onChange={(val) => setValue(prefix + "text", val.toUpperCase(), { shouldDirty: true, shouldValidate: true })}
               placeholder="Type in English..."
             />
             <AutoTextGenerator

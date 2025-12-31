@@ -22,7 +22,7 @@ export function LeftPanel() {
                     </span> */}
                     <span className='flex items-center gap-4'>
                         <span
-                            className='flex size-8 shrink-0 items-center bg-indigo-900 justify-center rounded-full border'
+                            className='flex size-8 shrink-0 items-center bg-pink-900 justify-center rounded-full border'
                             aria-hidden='true'
                         >
                             <Route className='size-4' />
@@ -42,7 +42,7 @@ export function LeftPanel() {
                 <AccordionTrigger className="px-4 py-3 items-center text">
                 <span className='flex items-center gap-4'>
                         <span
-                            className='flex size-8 shrink-0 items-center bg-indigo-900 justify-center rounded-full border'
+                            className='flex size-8 shrink-0 items-center bg-pink-900 justify-center rounded-full border'
                             aria-hidden='true'
                         >
                             <Languages className='size-4' />

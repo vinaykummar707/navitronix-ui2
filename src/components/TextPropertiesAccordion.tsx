@@ -11,13 +11,13 @@ interface Item {
 export function TextPropertiesAccordion({ items }: { items: Item[] }) {
   if (!items.length) return null;
   return (
-    <Accordion type="multiple" className="w-full rounded-md border" >
+    <Accordion type="multiple" className="w-full bg-accent rounded-md border" >
       {items.map(({ label, name }) => (
         <AccordionItem className="" value={label} key={label}>
           <AccordionTrigger className="px-4 py-3">
           <span className='flex items-center gap-4'>
                             <span
-                              className='flex text-xs capitalize size-8 shrink-0 items-center bg-red-900 justify-center rounded-full border'
+                              className='flex text-xs capitalize size-8 shrink-0 items-center bg-indigo-900 justify-center rounded-full border'
                               aria-hidden='true'
                             >
                              <ALargeSmall className="size-4" />

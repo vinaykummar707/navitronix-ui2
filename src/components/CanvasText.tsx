@@ -1,4 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useMemo, useRef, useEffect, useCallback } from "react";
+
+// ============================================================================
+// TYPES & INTERFACES
+// ============================================================================
 
 type MarqueeDirection = "none" | "ltr" | "rtl";
 type Alignment = "start" | "center" | "end";
@@ -15,7 +19,223 @@ interface LEDMatrixProps {
   scrollSpeed?: number;
   alignment?: Alignment;
   paused?: boolean;
+  onPatternChange?: (pattern: boolean[][]) => void;
+  interactive?: boolean;
+  gapAfterPattern?: number;
 }
+
+interface DotSprites {
+  on: HTMLCanvasElement;
+  off: HTMLCanvasElement;
+}
+
+interface RenderConfig {
+  totalDotSize: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  patternWidth: number;
+  patternHeight: number;
+  staticOffsetX: number;
+  startY: number;
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Creates an offscreen canvas with a pre-rendered dot sprite
+ * This dramatically improves performance by avoiding arc() calls [web:9][web:36]
+ */
+const createDotSprite = (size: number, color: string): HTMLCanvasElement => {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext("2d", { alpha: true });
+
+  if (ctx) {
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  return canvas;
+};
+
+/**
+ * Converts string pattern to boolean matrix
+ */
+const parsePattern = (pattern: string[]): boolean[][] => {
+  return pattern.map(row => row.split("").map(char => char === "#"));
+};
+
+/**
+ * Creates empty matrix
+ */
+const createEmptyMatrix = (rows: number, columns: number): boolean[][] => {
+  return Array.from({ length: rows }, () => Array(columns).fill(false));
+};
+
+// ============================================================================
+// CUSTOM HOOKS
+// ============================================================================
+
+/**
+ * Hook to manage dot sprites with proper memoization [web:31][web:33]
+ */
+const useDotSprites = (dotSize: number, onColor: string, offColor: string): DotSprites | null => {
+  return useMemo(() => {
+    return {
+      on: createDotSprite(dotSize, onColor),
+      off: createDotSprite(dotSize, offColor),
+    };
+  }, [dotSize, onColor, offColor]);
+};
+
+/**
+ * Hook to compute render configuration [web:34]
+ */
+const useRenderConfig = (
+  matrix: boolean[][],
+  rows: number,
+  columns: number,
+  dotSize: number,
+  dotSpacing: number,
+  marqueeDirection: MarqueeDirection,
+  alignment: Alignment
+): RenderConfig => {
+  return useMemo(() => {
+    const totalDotSize = dotSize + dotSpacing;
+    const canvasWidth = columns * totalDotSize;
+    const canvasHeight = rows * totalDotSize;
+    const patternWidth = (matrix[0]?.length || 0) * totalDotSize;
+    const patternHeight = matrix.length;
+
+    // Calculate static alignment offset
+    let staticOffsetX = 0;
+    if (marqueeDirection === "none" && patternWidth < canvasWidth) {
+      switch (alignment) {
+        case "center":
+          staticOffsetX = Math.floor((canvasWidth - patternWidth) / 2);
+          break;
+        case "end":
+          staticOffsetX = canvasWidth - patternWidth;
+          break;
+      }
+    }
+
+    const startY = Math.floor((rows - patternHeight) / 2) * totalDotSize;
+
+    return {
+      totalDotSize,
+      canvasWidth,
+      canvasHeight,
+      patternWidth,
+      patternHeight,
+      staticOffsetX,
+      startY,
+    };
+  }, [matrix, rows, columns, dotSize, dotSpacing, marqueeDirection, alignment]);
+};
+
+// ============================================================================
+// RENDERER CLASS
+// ============================================================================
+
+/**
+ * Encapsulated renderer for better separation of concerns [web:32][web:34]
+ * Uses batch rendering techniques for optimal performance [web:9][web:36]
+ */
+class LEDMatrixRenderer {
+  private ctx: CanvasRenderingContext2D;
+  private sprites: DotSprites;
+  private config: RenderConfig;
+
+  constructor(ctx: CanvasRenderingContext2D, sprites: DotSprites, config: RenderConfig) {
+    this.ctx = ctx;
+    this.sprites = sprites;
+    this.config = config;
+  }
+
+  /**
+   * Renders the matrix with optimized batched drawing [web:9]
+   */
+  render(matrix: boolean[][], scrollOffset: number, isMarquee: boolean): void {
+    const { ctx, sprites, config } = this;
+    const { canvasWidth, canvasHeight, totalDotSize, patternWidth, startY, staticOffsetX } = config;
+
+    // Clear canvas with solid background (alpha: false optimization)
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    const offsetX = isMarquee ? scrollOffset : staticOffsetX;
+
+    // Batch render all dots
+    matrix.forEach((row, rowIdx) => {
+      const y = rowIdx * totalDotSize + startY;
+
+      row.forEach((isOn, colIdx) => {
+        const baseX = colIdx * totalDotSize;
+        const sprite = isOn ? sprites.on : sprites.off;
+
+        if (!isMarquee) {
+          // Static rendering
+          this.drawDot(sprite, baseX + offsetX, y, canvasWidth);
+        } else {
+          // Marquee rendering with seamless wrapping
+          this.drawMarqueeDot(sprite, baseX, offsetX, y, patternWidth, canvasWidth);
+        }
+      });
+    });
+  }
+
+  /**
+   * Draws a single dot with bounds checking
+   */
+  private drawDot(sprite: HTMLCanvasElement, x: number, y: number, canvasWidth: number): void {
+    if (x >= -sprite.width && x <= canvasWidth) {
+      this.ctx.drawImage(sprite, x, y);
+    }
+  }
+
+  /**
+   * Draws marquee dot with wrapping logic for seamless scrolling
+   */
+  private drawMarqueeDot(
+    sprite: HTMLCanvasElement,
+    baseX: number,
+    offset: number,
+    y: number,
+    patternWidth: number,
+    canvasWidth: number
+  ): void {
+    let x = baseX + offset;
+
+    // Normalize to pattern width for seamless looping
+    x = ((x % patternWidth) + patternWidth) % patternWidth;
+
+    // Draw primary instance
+    this.drawDot(sprite, x, y, canvasWidth);
+
+    // Draw wrapped instance for continuous scroll
+    const wrappedX = x - patternWidth;
+    if (wrappedX + sprite.width >= 0) {
+      this.drawDot(sprite, wrappedX, y, canvasWidth);
+    }
+
+    // Fill gaps if pattern is smaller than canvas
+    if (patternWidth < canvasWidth) {
+      const wrappedX2 = x + patternWidth;
+      if (wrappedX2 < canvasWidth) {
+        this.drawDot(sprite, wrappedX2, y, canvasWidth);
+      }
+    }
+  }
+}
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 const LEDMatrix: React.FC<LEDMatrixProps> = ({
   rows,
@@ -24,281 +244,144 @@ const LEDMatrix: React.FC<LEDMatrixProps> = ({
   dotSize = 3,
   dotSpacing = 3,
   onColor = "#ffbf00",
-  offColor = "#000",
+  offColor = "#000000ff",
   marqueeDirection = "rtl",
   scrollSpeed = 10,
   alignment = "start",
   paused = false,
+  onPatternChange,
+  interactive = true,
+  gapAfterPattern = 100,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [matrix, setMatrix] = useState<boolean[][]>([]);
   const animationFrameRef = useRef<number>();
-  const currentScrollPositionRef = useRef(0); // Renamed for clarity
+  const scrollPosRef = useRef(0);
+  const lastTimeRef = useRef<number>(0);
 
-  // Utility function to inverse scroll speed for a more intuitive feel
-  function inverseInRange(value: number, min: number, max: number): number {
-    if (value < min || value > max) {
-      // Clamping value to ensure it's within expected range for speed calculation
-      return Math.min(Math.max(value, min), max);
-    }
-    return max - (value - min);
-  }
+ // Parse or create matrix with gap padding
+  const matrix = useMemo(() => {
+    const validRows = Math.max(1, rows);
+    const validColumns = Math.max(1, columns);
 
-useEffect(() => {
-    // Ensure rows and columns are correctly defaulted to prevent invalid array lengths
-    const validRows = Math.max(1, rows); // Ensure at least 1 row
-    const validColumns = Math.max(1, columns); // Ensure at least 1 column
-
-    if (pattern && pattern.length > 0) {
-        const newMatrix = pattern.map(row =>
-            row.split("").map(char => char === "#")
-        );
-        setMatrix(newMatrix);
+    let baseMatrix: boolean[][];
+    
+    if (pattern?.length) {
+      baseMatrix = parsePattern(pattern);
     } else {
-        // Build a matrix of `validRows` x `validColumns` filled with false
-        const newMatrix = Array.from({ length: validRows }, () =>
-            Array.from({ length: validColumns }, () => false)
-        );
-        setMatrix(newMatrix);
+      baseMatrix = createEmptyMatrix(validRows, validColumns);
     }
-}, [rows, columns, pattern]);
+
+    // Add gap columns after the pattern [web:41]
+    if (gapAfterPattern > 0 && marqueeDirection !== "none") {
+      return baseMatrix.map(row => [
+        ...row,
+        ...Array(gapAfterPattern).fill(false) // Add empty columns for gap
+      ]);
+    }
+
+    return baseMatrix;
+  }, [rows, columns, pattern, gapAfterPattern, marqueeDirection]);
+
+  // Pre-rendered dot sprites
+  const sprites = useDotSprites(dotSize, onColor, offColor);
+
+  // Computed render configuration
+  const config = useRenderConfig(matrix, rows, columns, dotSize, dotSpacing, marqueeDirection, alignment);
+
+  // ============================================================================
+  // ANIMATION LOOP
+  // ============================================================================
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !sprites) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false }); // Performance optimization
     if (!ctx) return;
 
-    const totalDotSize = dotSize + dotSpacing;
-    const canvasWidth = columns * totalDotSize;
-    const canvasHeight = rows * totalDotSize;
+    // Set canvas dimensions
+    canvas.width = config.canvasWidth;
+    canvas.height = config.canvasHeight;
 
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+    // Initialize renderer
+    const renderer = new LEDMatrixRenderer(ctx, sprites, config);
+    const isMarquee = marqueeDirection !== "none";
 
-    // Calculate the actual width of the pattern in pixels
-    const patternPixelWidth = (matrix[0]?.length || 0) * totalDotSize;
+    /**
+     * Animation loop with delta time for consistent speed [web:27]
+     */
+    const animate = (timestamp: number): void => {
+      const deltaTime = lastTimeRef.current ? timestamp - lastTimeRef.current : 0;
+      lastTimeRef.current = timestamp;
 
-    const drawMatrix = (offsetX: number = 0) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-      ctx.fillStyle = "#000000"; // Set background
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const patternHeight = matrix.length;
-      let staticStartX = 0; // Renamed to clearly differentiate from scrolling offset
-
-      // Calculate vertical centering offset
-      const startY = Math.floor((rows - patternHeight) / 2) * totalDotSize;
-
-      // When no marquee, apply alignment for patterns smaller than canvas
-      if (marqueeDirection === "none" && patternPixelWidth < canvasWidth) {
-        currentScrollPositionRef.current = 0
-        switch (alignment) {
-          case "center":
-            staticStartX = Math.floor((canvasWidth - patternPixelWidth) / 2);
-            break;
-          case "end":
-            staticStartX = canvasWidth - patternPixelWidth;
-            break;
-          default: // 'start'
-            staticStartX = 0;
-        }
-      }
-
-      // Draw the pattern. For marquee, we need to draw it twice to create the seamless loop
-      // The drawing range for the loop should span the pattern width plus the canvas width.
-      // This ensures the pattern completely exits one side and enters the other.
-      const scrollRange = patternPixelWidth + canvasWidth;
-
-      // Determine how many times to draw the pattern to cover the visible area
-      // and ensure seamless scrolling.
-      // We need to draw at least one full pattern for the current view and
-      // one for the "next" pattern in the scroll.
-      // Adjusting the draw start based on direction
-      let drawStartOffset = offsetX;
-      if (marqueeDirection === "rtl") {
-        // For RTL, we want the pattern to start entering from the right
-        // as it scrolls left. We need to account for the canvas width for this.
-        drawStartOffset = offsetX - patternPixelWidth; // Adjusted for RTL full scroll
-      }
-
-
-      // Iterate over the pattern and draw its dots
-      matrix.forEach((row, rowIndex) => {
-        row.forEach((isOn, colIndex) => {
-          // Calculate the base x position of the dot within the pattern
-          const baseDotX = colIndex * totalDotSize;
-
-          // For marquee, calculate the actual x position including the scroll offset
-          let xWithOffset = baseDotX + offsetX;
-
-          // For RTL, we need to ensure the pattern that's wrapping around
-          // correctly appears on the right side of the canvas.
-          if (marqueeDirection === "rtl") {
-              // The effective start of the pattern considering the current scroll position
-              // and wrapping around the full scroll range (pattern + canvas width)
-              let effectiveX = (xWithOffset % scrollRange + scrollRange) % scrollRange;
-
-              // If the effective X is within the canvas but the pattern itself is not
-              // fully "in" the canvas, we need to draw its wrapped counterpart.
-              if (effectiveX >= canvasWidth) {
-                  effectiveX -= scrollRange;
-              }
-              xWithOffset = effectiveX;
-
-          } else if (marqueeDirection === "ltr") {
-              // For LTR, the pattern scrolls from left to right.
-              // When it reaches the end, it should reappear from the left.
-              let effectiveX = (xWithOffset % scrollRange + scrollRange) % scrollRange;
-              if (effectiveX < -patternPixelWidth) {
-                  effectiveX += scrollRange;
-              }
-              xWithOffset = effectiveX;
-          }
-
-
-          const y = rowIndex * totalDotSize + dotSize / 2 + startY;
-
-          // Only draw if the dot is within the visible canvas area
-          // or is part of the wrapping pattern that will soon be visible.
-          if (marqueeDirection === "none") {
-            // Static position drawing
-            if (
-              xWithOffset + staticStartX + dotSize / 2 > -dotSize &&
-              xWithOffset + staticStartX + dotSize / 2 < canvas.width + dotSize
-            ) {
-              ctx.beginPath();
-              ctx.arc(
-                xWithOffset + staticStartX + dotSize / 2,
-                y,
-                dotSize / 2,
-                0,
-                Math.PI * 2
-              );
-              ctx.fillStyle = isOn ? onColor : offColor;
-              ctx.fill();
-            }
-          } else {
-            // Marquee drawing: Draw the current position and the wrapped position
-            // This ensures seamless continuity.
-            // We draw the dot at its current position
-            if (
-              xWithOffset + dotSize / 2 > -dotSize &&
-              xWithOffset + dotSize / 2 < canvas.width + dotSize
-            ) {
-              ctx.beginPath();
-              ctx.arc(
-                xWithOffset + dotSize / 2,
-                y,
-                dotSize / 2,
-                0,
-                Math.PI * 2
-              );
-              ctx.fillStyle = isOn ? onColor : offColor;
-              ctx.fill();
-            }
-
-            // Draw the "wrapped" version of the dot for continuous scrolling
-            let wrappedDotX = xWithOffset;
-            if (marqueeDirection === "rtl") {
-                wrappedDotX = xWithOffset + patternPixelWidth + canvasWidth;
-            } else if (marqueeDirection === "ltr") {
-                wrappedDotX = xWithOffset - (patternPixelWidth + canvasWidth);
-            }
-
-            if (
-                wrappedDotX + dotSize / 2 > -dotSize &&
-                wrappedDotX + dotSize / 2 < canvas.width + dotSize
-            ) {
-                ctx.beginPath();
-                ctx.arc(
-                    wrappedDotX + dotSize / 2,
-                    y,
-                    dotSize / 2,
-                    0,
-                    Math.PI * 2
-                );
-                ctx.fillStyle = isOn ? onColor : offColor;
-                ctx.fill();
-            }
-          }
-        });
-      });
-    };
-
-    const animate = () => {
-      if (!paused && marqueeDirection !== "none") {
-        const speed = inverseInRange(scrollSpeed, 1, 10);
-        const scrollLoopLength = patternPixelWidth + canvasWidth; // Total distance for one full loop
+      // Update scroll position based on delta time
+      if (!paused && isMarquee) {
+        const pixelsPerSecond = scrollSpeed * 30;
+        const movement = (pixelsPerSecond * deltaTime) / 1000;
 
         if (marqueeDirection === "ltr") {
-          currentScrollPositionRef.current += speed;
-          // When the beginning of the pattern has scrolled off the right edge of the canvas,
-          // reset its position to appear from the left, effectively looping.
-          if (currentScrollPositionRef.current >= scrollLoopLength) {
-            currentScrollPositionRef.current = 0;
+          scrollPosRef.current += movement;
+          if (scrollPosRef.current >= config.patternWidth) {
+            scrollPosRef.current -= config.patternWidth;
           }
         } else {
-          // RTL
-          currentScrollPositionRef.current -= speed;
-          // When the end of the pattern has scrolled off the left edge of the canvas,
-          // reset its position to appear from the right, effectively looping.
-          if (currentScrollPositionRef.current <= -scrollLoopLength) {
-            currentScrollPositionRef.current = 0;
+          scrollPosRef.current -= movement;
+          if (scrollPosRef.current <= -config.patternWidth) {
+            scrollPosRef.current += config.patternWidth;
           }
         }
-        drawMatrix(currentScrollPositionRef.current);
-      } else {
-        drawMatrix(currentScrollPositionRef.current); // Draw static position
       }
+
+      // Render frame
+      renderer.render(matrix, scrollPosRef.current, isMarquee);
 
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    // Initialize scroll position when marquee direction changes or on mount
-   
-    animate();
+    // Start animation
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [
-    matrix,
-    dotSize,
-    dotSpacing,
-    onColor,
-    offColor,
-    marqueeDirection,
-    scrollSpeed,
-    alignment,
-    columns,
-    rows,
-    paused,
-  ]);
+  }, [matrix, sprites, config, marqueeDirection, scrollSpeed, paused]);
 
-  // Handle click to toggle LED state
-  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // ============================================================================
+  // INTERACTION HANDLER
+  // ============================================================================
 
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+  /**
+   * Handle canvas click to toggle LED state [web:34][web:35]
+   */
+  const handleCanvasClick = useCallback(
+    (event: React.MouseEvent<HTMLCanvasElement>): void => {
+      if (!interactive || marqueeDirection !== "none" || !onPatternChange) return;
 
-    const totalDotSize = dotSize + dotSpacing;
-    const col = Math.floor(x / totalDotSize);
-    const row = Math.floor(y / totalDotSize);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    if (row >= 0 && row < rows && col >= 0 && col < columns) {
-      const newMatrix = matrix.map((r, i) =>
-        i === row ? r.map((cell, j) => (j === col ? !cell : cell)) : r
-      );
-      setMatrix(newMatrix);
-    }
-  };
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      const col = Math.floor(x / config.totalDotSize);
+      const row = Math.floor(y / config.totalDotSize);
+
+      if (row >= 0 && row < matrix.length && col >= 0 && col < matrix[0].length) {
+        const newMatrix = matrix.map((r, i) =>
+          i === row ? r.map((cell, j) => (j === col ? !cell : cell)) : r
+        );
+        onPatternChange(newMatrix);
+      }
+    },
+    [interactive, marqueeDirection, onPatternChange, config.totalDotSize, matrix]
+  );
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <canvas
@@ -306,7 +389,10 @@ useEffect(() => {
       onClick={handleCanvasClick}
       style={{
         backgroundColor: "#141414",
+        display: "block",
+        cursor: interactive && marqueeDirection === "none" ? "pointer" : "default",
       }}
+      aria-label="LED Matrix Display"
     />
   );
 };

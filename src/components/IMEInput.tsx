@@ -119,6 +119,7 @@ export const IMEInput: React.FC<IMEInputProps> = ({
   return (
     <div className="relative w-full">
       <Input
+        className="uppercase"
         ref={inputRef}
         type="text"
         value={value}

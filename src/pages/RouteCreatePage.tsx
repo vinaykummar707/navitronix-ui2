@@ -17,6 +17,7 @@ import { useGetApi, usePostApi } from "@/hooks/useApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Loader2, Save } from "lucide-react";
 
 
 
@@ -30,6 +31,7 @@ const RouteCreatePage: React.FC = () => {
 
 // Use useGetApi hook to fetch route details
     const { data: editRouteData, isLoading, isError, error } = useGetApi<DisplayConfig>(`/routes/${routeId}`, {}, routeId !== undefined);
+      const isEdit = routeId !== undefined;
 
 
     // Mutation hook for creating routes
@@ -38,16 +40,19 @@ const RouteCreatePage: React.FC = () => {
         (data) => {
             // onSuccess
             console.log("Route created successfully!", data);
-            toast.success('Route Saved Successfully')
+            toast(isEdit ? 'Route Updated Successfully' : 'Route Saved Successfully')
             // Optionally navigate or show a success UI
         },
         (error) => {
             // onError
             console.error("Route creation failed", error);
-            toast.error("Route Failed To Save")
+             toast(isEdit ? 'Route Update Failed' : 'Route Save Failed')
             // Optionally notify user
         },
     );
+
+  const isSubmitting = Boolean(createRouteMutation?.isLoading);
+
 
     // <-- Ensure form gets updated params into displayConfig -->
     useEffect(() => {
@@ -95,6 +100,25 @@ const RouteCreatePage: React.FC = () => {
     if (isLoading) return <div>Loading...</div>;
     if (isError) return <div>Error</div>;
 
+      // --- New: compute edit mode & loading state for header button ---
+
+    const headerActionButton = (
+    <Button
+      type="submit"
+      size="sm"
+      variant="default"
+      onClick={handleSubmit(onSubmit)}
+      disabled={isSubmitting}
+    >
+      {isSubmitting ? (
+        <Loader2 className=" h-4 w-4 animate-spin" />
+      ) : (
+        <Save className=" h-4 w-4" />
+      )}
+      {isSubmitting ? (isEdit ? "Updating..." : "Saving...") : (isEdit ? "Update Route" : "Save Route")}
+    </Button>
+  );
+
     return (
         <LanguageConfigProvider>
             <FormProvider {...methods}>
@@ -105,6 +129,8 @@ const RouteCreatePage: React.FC = () => {
                         onViewJson={handleViewJson}
                         onDownloadJson={handleDownloadJson}
                         onSaveRoute={handleSubmit(onSubmit)}
+                        actionButton={headerActionButton}
+
                     />
                     <div className="flex-1 overflow-hidden bg-dotted flex">
                         
@@ -121,7 +147,7 @@ const RouteCreatePage: React.FC = () => {
                     <DialogHeader>
                       <DialogTitle>Form JSON Preview</DialogTitle>
                     </DialogHeader>
-                    <pre className="p-4 bg-muted rounded text-sm overflow-x-auto max-h-[60vh]">
+                    <pre className="p-4  rounded scrollbar-minimal text-sm overflow-x-auto max-h-[60vh]">
                       {JSON.stringify(getValues(), null, 2)}
                     </pre>
                     <DialogFooter>

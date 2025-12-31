@@ -1,16 +1,22 @@
 import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import useTabsStore from "@/stores/useTabsStore";
-import { getBitmapColumns, getColumnsByBoard } from "@/utils/measurements";
-import type { DisplayConfig, Screen, ScreenFormat, Position } from "@/routeConfig";
+import {
+  ensureMin,
+  ensureNumber,
+  getBitmapColumns,
+  getColumnsByBoard,
+} from "@/utils/measurements";
+import type {
+  DisplayConfig,
+  Screen,
+  ScreenFormat,
+  Position,
+} from "@/routeConfig";
 import LEDBitmapSimulator from "./LedSignBoard";
 import { useFontFileByLanguage } from "@/utils/getFontFileByLanguage";
 import { Button } from "./ui/button";
 import { Play, StopCircle } from "lucide-react";
-
-
-
-
 
 interface DisplayEditorProps {
   language: string;
@@ -30,7 +36,9 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
   const [isScrollStopped, setIsScrollStopped] = useState(false);
 
   // Only watch the fields you need!
-  const screenConfig = watch(`displayConfig.${language}.${selectedTab}`) as Screen | undefined;
+  const screenConfig = watch(`displayConfig.${language}.${selectedTab}`) as
+    | Screen
+    | undefined;
   if (!screenConfig) return null; // Guard for load
 
   // Form fields
@@ -66,18 +74,21 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
       );
 
       // Memoize onBitmapTextChange per instance
-      const handleBitmapTextChange = React.useCallback((text: string) => {
-        if (text !== currentBitmap) {
-          setValue(
-            `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.bitmap`,
-            text
-          );
-          setValue(
-            `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.fontWidth`,
-            getBitmapColumns(text)
-          );
-        }
-      }, [currentBitmap, fieldKey, language, selectedTab, setValue]);
+      const handleBitmapTextChange = React.useCallback(
+        (text: string) => {
+          if (text !== currentBitmap) {
+            setValue(
+              `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.bitmap`,
+              text
+            );
+            setValue(
+              `displayConfig.${language}.${selectedTab}.texts.${fieldKey}.fontWidth`,
+              getBitmapColumns(text)
+            );
+          }
+        },
+        [currentBitmap, fieldKey, language, selectedTab, setValue]
+      );
 
       return (
         <LEDBitmapSimulator
@@ -88,7 +99,6 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
           isRouteNumber={isRouteNumber}
           fontFamily={fontFamily}
           onBitmapTextChange={handleBitmapTextChange}
-
         />
       );
     },
@@ -104,12 +114,15 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
       `displayConfig.${language}.${selectedTab}.texts.routeNumber2.bitmap`
     );
     const maxCols =
-      Math.max(getBitmapColumns(bitmap1), getBitmapColumns(bitmap2)) + 1;
+    ensureNumber(Math.max(
+        getBitmapColumns(bitmap1),
+        getBitmapColumns(bitmap2)
+    ), 128) + 1;
     return (
       <div className="flex flex-col">
         <LEDBitmapSimulatorWrapper
           fieldKey="routeNumber1"
-          rows={8}
+          rows={(screenConfig.height || 16) / 2}
           cols={maxCols}
           textConfig={screenConfig.texts?.routeNumber1}
           isRouteNumber={true}
@@ -122,7 +135,7 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
         />
         <LEDBitmapSimulatorWrapper
           fieldKey="routeNumber2"
-          rows={8}
+          rows={(screenConfig.height || 16) / 2}
           cols={maxCols}
           textConfig={screenConfig.texts?.routeNumber2}
           isRouteNumber={true}
@@ -160,8 +173,8 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
         <div className="  border-4   ">
           <LEDBitmapSimulatorWrapper
             fieldKey="text"
-            rows={screenConfig.height}
-            cols={screenConfig.width}
+            rows={screenConfig.height || 16}
+            cols={ensureNumber(screenConfig.width, 96)}
             textConfig={screenConfig.texts?.text}
             fontFamily={getFontFileByLanguage(
               language,
@@ -177,18 +190,19 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
 
   if (screenConfig.format === "two" || screenConfig.format === "three") {
     const splitRoute = routeData?.splitRoute;
-    const routePosition = !splitRoute ? watch(
-      `displayConfig.${language}.${selectedTab}.texts.sideText.position`
-    ) : watch(
-      `displayConfig.${language}.${selectedTab}.texts.routeNumber1.position`
-    )
+    const routePosition = !splitRoute
+      ? watch(
+          `displayConfig.${language}.${selectedTab}.texts.sideText.position`
+        )
+      : watch(
+          `displayConfig.${language}.${selectedTab}.texts.routeNumber1.position`
+        );
     const flexRowClass =
       routePosition === "Right" ? "flex-row-reverse" : "flex-row";
 
     const sideTextBitmap = watch(
       `displayConfig.${language}.${selectedTab}.texts.sideText.bitmap`
     );
-    console.log(sideTextBitmap);
     const routeBitmap1 = watch(
       `displayConfig.${language}.${selectedTab}.texts.routeNumber1.bitmap`
     );
@@ -196,9 +210,11 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
       `displayConfig.${language}.${selectedTab}.texts.routeNumber2.bitmap`
     );
 
-    const leftCols = splitRoute
-      ? Math.max(getBitmapColumns(routeBitmap1), getBitmapColumns(routeBitmap2))
-      : getBitmapColumns(sideTextBitmap);
+     const leftCols = ensureMin(
+    splitRoute ? Math.max(getBitmapColumns(routeBitmap1), getBitmapColumns(routeBitmap2)) : getBitmapColumns(sideTextBitmap),
+    96,  // Minimum 1 column
+    0   // Never go below 0
+  );
 
     return (
       <div className="flex flex-col-reverse items-start gap-4">
@@ -224,10 +240,9 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
               <RouteNumberSimulators />
             ) : (
               <LEDBitmapSimulatorWrapper
-
                 fieldKey="sideText"
-                rows={16}
-                cols={getBitmapColumns(sideTextBitmap) + 1}
+                rows={screenConfig.height || 16}
+                cols={ensureNumber(getBitmapColumns(sideTextBitmap), 96) + 1}
                 textConfig={screenConfig.texts?.sideText}
                 isRouteNumber={true}
                 fontFamily={getFontFileByLanguage(
@@ -242,10 +257,8 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
             {screenConfig.format === "two" ? (
               <LEDBitmapSimulatorWrapper
                 fieldKey="text"
-                rows={screenConfig.height}
-                cols={
-                  screenConfig.width - leftCols
-                }
+                rows={screenConfig.height || 16}
+                cols={ensureMin(ensureNumber(screenConfig.width, 10) - leftCols, 96)}
                 textConfig={screenConfig.texts?.text}
                 fontFamily={getFontFileByLanguage(
                   language,
@@ -258,11 +271,8 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
               <div className="flex flex-col">
                 <LEDBitmapSimulatorWrapper
                   fieldKey="upperHalfText"
-                  rows={screenConfig.height / 2}
-                  cols={
-                    screenConfig.width -
-                    getBitmapColumns(sideTextBitmap)
-                  }
+                  rows={(screenConfig.height || 16) / 2}
+                  cols={ensureMin(ensureNumber(screenConfig.width, 10) - getBitmapColumns(sideTextBitmap), 96)}
                   textConfig={screenConfig.texts?.upperHalfText}
                   fontFamily={getFontFileByLanguage(
                     language,
@@ -273,11 +283,8 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
                 />
                 <LEDBitmapSimulatorWrapper
                   fieldKey="lowerHalfText"
-                  rows={screenConfig.height / 2}
-                  cols={
-                    screenConfig.width -
-                    getBitmapColumns(sideTextBitmap)
-                  }
+                  rows={(screenConfig.height || 16) / 2}
+                  cols={ensureMin(ensureNumber(screenConfig.width, 10) - getBitmapColumns(sideTextBitmap), 96)}
                   textConfig={screenConfig.texts?.lowerHalfText}
                   fontFamily={getFontFileByLanguage(
                     language,

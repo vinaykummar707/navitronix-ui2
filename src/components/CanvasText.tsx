@@ -44,19 +44,24 @@ const LEDMatrix: React.FC<LEDMatrixProps> = ({
     return max - (value - min);
   }
 
-  useEffect(() => {
+useEffect(() => {
+    // Ensure rows and columns are correctly defaulted to prevent invalid array lengths
+    const validRows = Math.max(1, rows); // Ensure at least 1 row
+    const validColumns = Math.max(1, columns); // Ensure at least 1 column
+
     if (pattern && pattern.length > 0) {
-      const newMatrix = pattern.map((row) =>
-        row.split("").map((char) => char === "#")
-      );
-      setMatrix(newMatrix);
+        const newMatrix = pattern.map(row =>
+            row.split("").map(char => char === "#")
+        );
+        setMatrix(newMatrix);
     } else {
-      const newMatrix = Array(rows)
-        .fill(0)
-        .map(() => Array(columns).fill(false));
-      setMatrix(newMatrix);
+        // Build a matrix of `validRows` x `validColumns` filled with false
+        const newMatrix = Array.from({ length: validRows }, () =>
+            Array.from({ length: validColumns }, () => false)
+        );
+        setMatrix(newMatrix);
     }
-  }, [rows, columns, pattern]);
+}, [rows, columns, pattern]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

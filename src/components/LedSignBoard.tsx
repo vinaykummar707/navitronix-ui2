@@ -50,6 +50,9 @@ const LEDBitmapSimulator = ({
 
   // Process bitmap text into matrix with scrolling support
   const processBitmapText = (text, offset = 0) => {
+    console.log("Processing bitmap text with offset:", offset);
+    console.log(text);
+    console.log("Rows:", rows, "Cols:", cols);
     if (!text)
       return Array(rows)
         .fill()
@@ -106,19 +109,15 @@ const LEDBitmapSimulator = ({
   };
 
   useEffect(() => {
-    console.log(text);
     setBitmapText("");
 
     const fetchBitmap = async () => {
       try {
         // Use the function to get the URL with padding properties if needed
         const url = addPaddingPropertiesInUrl();
-        console.log("Fetching bitmap from URL:", url);
         const response = await axios.get(url);
-        console.log(response);
         const lines = response.data.trim().split("\n");
         
-        console.log("Fetched bitmap lines:", lines);
         // if (lines.length <= 16) {
           setBitmapText(response.data);
         // }
@@ -169,7 +168,6 @@ const LEDBitmapSimulator = ({
   ]);
 
   useEffect(() => {
-    console.log("Bitmap Text Updated:", bitmapText);
     setLedMatrix(processBitmapText(bitmapText, scrollOffset));
   }, [bitmapText]);
 
@@ -207,7 +205,6 @@ const LEDBitmapSimulator = ({
   }
 
   useEffect(() => {
-    console.log(bitmapText);
     onBitmapTextChange(bitmapText);
   }, [bitmapText]);
 

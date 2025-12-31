@@ -13,7 +13,7 @@ import { LanguagesSelector } from "@/components/LanguagesSelector";
 import { Separator } from "@/components/ui/separator";
 import SimulationPanel from "@/components/SimulationPanel";
 import { LanguageConfigProvider } from "@/context/LanguageConfigContext";
-import { usePostApi } from "@/hooks/useApi";
+import { useGetApi, usePostApi } from "@/hooks/useApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -23,12 +23,13 @@ import { toast } from "sonner";
 const RouteCreatePage: React.FC = () => {
     const navigate = useNavigate();
     const API_URL = "https://api.navitronix.in/navitranix/api/routes";
-    const { areaId, depotId } = useParams();
+    const { areaId, depotId, routeId } = useParams();
 
     const methods = useForm<DisplayConfig>({ defaultValues: defaultValues });
-    const { handleSubmit, getValues, setValue } = methods;
+    const { handleSubmit, getValues, setValue, reset } = methods;
 
-
+// Use useGetApi hook to fetch route details
+    const { data: editRouteData, isLoading, isError, error } = useGetApi<DisplayConfig>(`/routes/${routeId}`, {}, routeId !== undefined);
 
 
     // Mutation hook for creating routes
@@ -83,6 +84,16 @@ const RouteCreatePage: React.FC = () => {
         // Do your API call or state update
         createRouteMutation.mutate(data);
     };
+
+      // Effect to reset form whenever new data is fetched
+    useEffect(() => {
+        if (editRouteData) {
+            reset(editRouteData)
+        }
+    }, [editRouteData,reset]);
+
+    if (isLoading) return <div>Loading...</div>;
+    if (isError) return <div>Error</div>;
 
     return (
         <LanguageConfigProvider>

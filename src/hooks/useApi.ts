@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useQuery, useMutation } from 'react-query'
 
 // 1. Create Axios instance with Base URL
-const BASE_URL = 'http://localhost:5000' // ← Change to your actual base URL
+const BASE_URL = 'https://api.navitronix.in/navitranix/api' // ← Change to your actual base URL
 
 const api = axios.create({
   baseURL: BASE_URL,

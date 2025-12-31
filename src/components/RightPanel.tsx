@@ -63,7 +63,7 @@ export function RightPanel() {
                 </span>
 
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground  flex flex-col pt-2 pb-4 gap-4 px-6">
+              <AccordionContent className="text-muted-foreground  flex flex-col pt-2 pb-4 gap-4 px-4">
                 <ScreenSizeSelect fieldPrefix={`displayConfig.${lang}.${selectedTab}`} />
                 <FormatSelect
                   langCode={lang}

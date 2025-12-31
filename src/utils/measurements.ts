@@ -39,4 +39,20 @@ export function getBitmapColumns(bitmap: string): number {
       default:
         return getFormatByScreen(112, format);
     }
+}
+  
+
+// Example of a helper function to ensure number or default:
+export function ensureNumber(val: any, defaultValue: number): number {
+    const num = Number(val);
+    return isNaN(num) ? defaultValue : num;
+}
+
+// Ensure the value is not only a number but also not less than the min value allowed.
+export function ensureMin(value: any, defaultValue: number, min: number = 0): number {
+  const num = Number(value);
+  if (isNaN(num) || num < min) {
+    return defaultValue;
   }
+  return num;
+}

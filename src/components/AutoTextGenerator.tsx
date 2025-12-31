@@ -137,10 +137,13 @@ type Props = {
 
 function generateCombinations(route: any): string[] {
     const combos = [
+        [route.routeNumber, route.source, route.destination, 'VIA:', route.via].filter(Boolean).join(" - "),
         [route.source, route.destination, 'VIA:', route.via].filter(Boolean).join(" - "),
         [route.source, route.destination].filter(Boolean).join(" - "),
         [route.destination, route.source].filter(Boolean).join(" - "),
-        [route.via].filter(Boolean).join(""),
+        [route.source].filter(Boolean).join(""),
+        [route.destination].filter(Boolean).join(""),
+        ['VIA:', route.via].filter(Boolean).join(""),
     ].filter(
         (str, idx, arr) =>
             !!str && str.replace(/-/g, "").trim() !== "" &&

@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useFormContext, useWatch } from "react-hook-form";
-import type { DisplayConfig, Screens } from "@/routeConfig";
+import { useFormContext } from "react-hook-form";
+import type { DisplayConfig } from "@/routeConfig";
 import { AVAILABLE_LANGUAGES } from "@/defaultValues";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const BOARD_SIDES = ["front", "rear", "side", "internal"] as const;
 type BoardSide = typeof BOARD_SIDES[number];
@@ -16,59 +19,122 @@ type Props = {
 
 export const CopyBoardPropertiesAllButton: React.FC<Props> = ({ lang, current }) => {
   const { getValues, setValue } = useFormContext<DisplayConfig>();
-  const [target, setTarget] = useState<BoardSide | "">("");
+  const [selectedBoards, setSelectedBoards] = useState<BoardSide[]>([]);
+  const [open, setOpen] = useState(false);
 
-
-
-  // MAIN CHANGE: For each language, copy THEIR "current" config to THEIR target
   const handleCopyToAllLanguages = () => {
-    if (!target) return;
+    if (selectedBoards.length === 0) return;
     const displayConfig = getValues(`displayConfig`);
     if (!displayConfig) return;
 
     AVAILABLE_LANGUAGES.forEach(l => {
       const langBoards = displayConfig[l.code];
-      if (langBoards && langBoards[current] && langBoards[target]) {
+      if (langBoards && langBoards[current]) {
         const fromData = langBoards[current];
-        setValue(
-          `displayConfig.${l.code}.${target}`,
-          JSON.parse(JSON.stringify(fromData)),
-          { shouldDirty: true }
-        );
+        
+        selectedBoards.forEach(target => {
+          if (langBoards[target]) {
+            setValue(
+              `displayConfig.${l.code}.${target}`,
+              JSON.parse(JSON.stringify(fromData)),
+              { shouldDirty: true }
+            );
+          }
+        });
       }
     });
 
-     // Show shadcn toast after copying
-     toast.success("Simulations copied!",{
-      description: `Simulation properties copied to all languages for the "${target}" board.`,
+    toast.success("Simulations copied!", {
+      description: `Simulation properties copied to ${selectedBoards.length} board(s) across all languages.`,
     });
   };
 
-  // Disable copying to self
+  const toggleBoard = (board: BoardSide) => {
+    setSelectedBoards(prev =>
+      prev.includes(board)
+        ? prev.filter(b => b !== board)
+        : [...prev, board]
+    );
+  };
+
+  const removeBoard = (board: BoardSide) => {
+    setSelectedBoards(prev => prev.filter(b => b !== board));
+  };
+
   const availableTargets = BOARD_SIDES.filter(side => side !== current);
 
   return (
-    <div className="flex flex-col gap-4 items-center ">
-      <Select value={target} onValueChange={setTarget}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select Board" />
-        </SelectTrigger>
-        <SelectContent>
-          {availableTargets.map(side => (
-            <SelectItem key={side} value={side}>
-              {side.charAt(0).toUpperCase() + side.slice(1)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex flex-col gap-4 items-center">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between h-auto min-h-10"
+          >
+            <div className="flex gap-1 flex-wrap flex-1">
+              {selectedBoards.length > 0 ? (
+                selectedBoards.map(board => (
+                  <Badge
+                    key={board}
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    {board.charAt(0).toUpperCase() + board.slice(1)}
+                    <X
+                      className="h-3 w-3 cursor-pointer hover:text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeBoard(board);
+                      }}
+                    />
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-muted-foreground">Select boards...</span>
+              )}
+            </div>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Search boards..." />
+            <CommandList>
+              <CommandEmpty>No board found.</CommandEmpty>
+              <CommandGroup>
+                {availableTargets.map(board => {
+                  const isSelected = selectedBoards.includes(board);
+                  return (
+                    <CommandItem
+                      key={board}
+                      value={board}
+                      onSelect={() => toggleBoard(board)}
+                    >
+                      <Check
+                        className={`mr-2 h-4 w-4 ${
+                          isSelected ? "opacity-100" : "opacity-0"
+                        }`}
+                      />
+                      {board.charAt(0).toUpperCase() + board.slice(1)}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
       <Button
         type="button"
         variant="default"
         className="w-full"
         onClick={handleCopyToAllLanguages}
-        disabled={!target}
+        disabled={selectedBoards.length === 0}
       >
-        Copy Simulations
+        Copy Simulations to {selectedBoards.length} Board(s)
       </Button>
     </div>
   );

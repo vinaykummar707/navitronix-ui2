@@ -18,11 +18,11 @@ export const DEFAULT_SCREEN_WIDTHS = [64, 96, 128, 160, 192, 224] as const;
 export type ScreenWidth = typeof DEFAULT_SCREEN_WIDTHS[number];
 
 export const SCROLL_SPEED_PRESETS = [
-  { label: "Very Slow", value: 9 },
-  { label: "Slow", value: 6 },
+  { label: "Very Fast", value: 9 },
+  { label: "Medium Fast", value: 6 },
   { label: "Normal", value: 4 },
-  { label: "Medium Fast", value: 3 },
-  { label: "Very Fast", value: 1 },
+  { label: "Slow", value: 3 },
+  { label: "Very Slow", value: 1 },
 ] as const;
 
 export type ScrollSpeedPresetLabel = typeof SCROLL_SPEED_PRESETS[number]['label'];

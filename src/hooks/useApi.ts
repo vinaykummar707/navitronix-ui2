@@ -41,3 +41,17 @@ export function usePostApi<T = any, P = any>(
     { onSuccess, onError }
   )
 }
+
+export function usePutApi<T = any, P = any>(
+  endpoint: string,
+  onSuccess?: (data: T) => void,
+  onError?: (error: any) => void
+) {
+  return useMutation<T, unknown, P>(
+    async (payload: P) => {
+      const response = await api.put<T>(endpoint, payload)
+      return response.data
+    },
+    { onSuccess, onError }
+  )
+}

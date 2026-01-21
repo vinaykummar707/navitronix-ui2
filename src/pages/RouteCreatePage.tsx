@@ -8,7 +8,7 @@ import { defaultValues } from "@/defaultValues";
 import type { DisplayConfig } from "@/routeConfig";
 import { FormProvider, useForm } from "react-hook-form";
 import { LanguageConfigProvider } from "@/context/LanguageConfigContext";
-import { useGetApi, usePostApi } from "@/hooks/useApi";
+import { useGetApi, usePostApi, usePutApi } from "@/hooks/useApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -52,7 +52,18 @@ const RouteCreatePage: React.FC = () => {
       toast(isEdit ? 'Route Update Failed' : 'Route Save Failed');
     }
   );
-  const isSubmitting = Boolean(createRouteMutation?.isLoading);
+
+    // NEW: Update mutation for edit mode (PUT)
+  const updateRouteMutation = usePutApi(
+    `${API_URL}/${routeId}`,
+    () => {
+      toast('Route Updated Successfully');
+    },
+    () => {
+      toast('Route Update Failed');
+    }
+  );
+  const isSubmitting = Boolean(isEdit ? updateRouteMutation?.isLoading : createRouteMutation?.isLoading);
 
   // ========== Dialog States ==========
   const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
@@ -107,8 +118,12 @@ const RouteCreatePage: React.FC = () => {
   // ========== Submit Handlers ==========
   // "Core form save": called for Save/Update and SaveAndGoBack
   const onSubmit = useCallback(async (data: DisplayConfig) => {
-    await createRouteMutation.mutateAsync(data);
-  }, [createRouteMutation]);
+    if (isEdit) {
+      await updateRouteMutation.mutateAsync(data);
+    } else {
+      await createRouteMutation.mutateAsync(data);
+    }
+  }, [createRouteMutation, updateRouteMutation, isEdit]);
 
   // Used in Save and Go Back (from dialog)
   const handleSaveAndGoBack = useCallback(async () => {

@@ -31,7 +31,7 @@ export const CopyBoardPropertiesAllButton: React.FC<Props> = ({ lang, current })
       const langBoards = displayConfig[l.code];
       if (langBoards && langBoards[current]) {
         const fromData = langBoards[current];
-        
+
         selectedBoards.forEach(target => {
           if (langBoards[target]) {
             setValue(
@@ -82,13 +82,19 @@ export const CopyBoardPropertiesAllButton: React.FC<Props> = ({ lang, current })
                     className="flex items-center gap-1"
                   >
                     {board.charAt(0).toUpperCase() + board.slice(1)}
-                    <X
-                      className="h-3 w-3 cursor-pointer hover:text-destructive"
-                      onClick={(e) => {
+                    <button
+                      type="button"
+                      className="ml-1"
+                      tabIndex={0}
+                      aria-label={`Remove ${board}`}
+                      onClick={e => {
                         e.stopPropagation();
+                        e.preventDefault();
                         removeBoard(board);
                       }}
-                    />
+                    >
+                      <X className="h-3 w-3 cursor-pointer hover:text-destructive" />
+                    </button>
                   </Badge>
                 ))
               ) : (
@@ -113,9 +119,8 @@ export const CopyBoardPropertiesAllButton: React.FC<Props> = ({ lang, current })
                       onSelect={() => toggleBoard(board)}
                     >
                       <Check
-                        className={`mr-2 h-4 w-4 ${
-                          isSelected ? "opacity-100" : "opacity-0"
-                        }`}
+                        className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"
+                          }`}
                       />
                       {board.charAt(0).toUpperCase() + board.slice(1)}
                     </CommandItem>

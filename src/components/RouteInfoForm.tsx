@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,7 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import type { DisplayConfig } from "@/routeConfig";
+import { FieldErrorsDialog } from "./FieldErrorsDialog";
 
 export const RouteInfoForm: React.FC = () => {
   const {
@@ -23,6 +24,8 @@ export const RouteInfoForm: React.FC = () => {
   } = useFormContext<DisplayConfig>();
 
   const splitRoute = watch('route.splitRoute')
+
+
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -52,9 +55,7 @@ export const RouteInfoForm: React.FC = () => {
       {!splitRoute && <Field>
         <FieldLabel htmlFor="route.routeNumber">Route Number</FieldLabel>
         <Input id="route.routeNumber" placeholder="Enter main route number"
-          {...register("route.routeNumber", {
-            setValueAs: (value) => value.toUpperCase(),
-          })}
+          {...register("route.routeNumber", { required: "Route number is required" })}
           autoComplete="off" />
         {/* Optionally: <FieldDescription>XXXXX</FieldDescription> */}
         {errors?.route?.routeNumber && (
@@ -63,10 +64,8 @@ export const RouteInfoForm: React.FC = () => {
       </Field>}
       <Field>
         <FieldLabel htmlFor="route.source">Source</FieldLabel>
-        <Input className='uppercase' id="route.source" placeholder="Start location"
-          {...register("route.source", {
-            setValueAs: (value) => value.toUpperCase(),
-          })}
+        <Input id="route.source" placeholder="Start location"
+          {...register("route.source", { required: "Source is required" })}
           autoComplete="off" />
         {errors?.route?.source && (
           <FieldError>{errors.route.source.message}</FieldError>
@@ -74,10 +73,8 @@ export const RouteInfoForm: React.FC = () => {
       </Field>
       <Field>
         <FieldLabel htmlFor="route.destination">Destination</FieldLabel>
-        <Input className='uppercase' id="route.destination" placeholder="End location"
-          {...register("route.destination", {
-            setValueAs: (value) => value.toUpperCase(),
-          })}
+        <Input id="route.destination" placeholder="End location"
+          {...register("route.destination", { required: "Destination is required" })}
           autoComplete="off" />
         {errors?.route?.destination && (
           <FieldError>{errors.route.destination.message}</FieldError>
@@ -85,10 +82,8 @@ export const RouteInfoForm: React.FC = () => {
       </Field>
       <Field>
         <FieldLabel htmlFor="route.via">Via</FieldLabel>
-        <Input className='uppercase' id="route.via" placeholder="Intermediate stops/routes"
-          {...register("route.via", {
-            setValueAs: (value) => value.toUpperCase(),
-          })}
+        <Input id="route.via" placeholder="Intermediate stops/routes"
+          {...register("route.via", { required: "Via is required" })}
           autoComplete="off" />
         {errors?.route?.via && (
           <FieldError>{errors.route.via.message}</FieldError>
@@ -104,15 +99,7 @@ export const RouteInfoForm: React.FC = () => {
         />
         <FieldLabel htmlFor="route.splitRoute">Split Route</FieldLabel>
       </Field> */}
-      <Field orientation="horizontal">
-        <Checkbox
-          disabled
-          id="route.showRt"
-          checked={!!watch("route.showRt")}
-          onCheckedChange={v => setValue("route.showRt", Boolean(v))}
-        />
-        <FieldLabel htmlFor="route.showRt">Show Rt</FieldLabel>
-      </Field>
+
       {/* <Field orientation="horizontal">
           <Checkbox
             id="route.showSpm"
@@ -129,6 +116,8 @@ export const RouteInfoForm: React.FC = () => {
           />
           <FieldLabel htmlFor="route.showBoth">Show Both</FieldLabel>
         </Field> */}
+
+      
     </div>
   );
 };

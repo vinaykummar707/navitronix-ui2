@@ -65,22 +65,28 @@ export default function DisplayEditor({ language }: DisplayEditorProps) {
     setValue,
   };
 
-  const renderPlaybackControls = () => (
-    <div className=" flex gap-2">
-      <Button
-        variant={isScrollStopped ? "default" : "outline"}
-        onClick={() => setIsScrollStopped(false)}
-      >
-        <Play className=" h-4 w-4" /> Play
-      </Button>
-      <Button
-        variant={!isScrollStopped ? "destructive" : "outline"}
-        onClick={() => setIsScrollStopped(true)}
-      >
-        <StopCircle className=" h-4 w-4" /> {isScrollStopped ? "Paused" : "Pause"}
-      </Button>
-    </div>
-  );
+// ... existing code ...
+
+const renderPlaybackControls = () => (
+  <div className="flex gap-2">
+    <Button
+      variant={isScrollStopped ? "default" : "destructive"}
+      onClick={() => setIsScrollStopped(!isScrollStopped)}
+    >
+      {isScrollStopped ? (
+        <>
+          <Play className="h-4 w-4" /> Play
+        </>
+      ) : (
+        <>
+          <StopCircle className="h-4 w-4" /> Pause
+        </>
+      )}
+    </Button>
+  </div>
+);
+
+// ... rest of code ...
 
   // Layout Logic for Multi-screen formats
   const renderMultiLayout = () => {

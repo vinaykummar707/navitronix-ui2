@@ -9,9 +9,10 @@ export function LeftPanel() {
     return <section className="w-[280px] shrink-0 flex flex-col gap-4 scrollbar-minimal   overflow-auto bg-sidebar border-r">
 
         <Accordion
-
+            
             type="multiple"
             className="w-full border-b"
+            defaultValue={['Route Information', 'Language Selection']}
         >
 
             <AccordionItem className="" value={'Route Information'} >

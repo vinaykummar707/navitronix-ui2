@@ -15,14 +15,10 @@ const DEFAULT_SCREEN: Screen = {
       text: "",
       fontWeight: "Regular",
       scrollType: "Fixed",
-      fontSize: 22,
       fontWidth: 12,
       fontHeight: 12,
       position: "Center",
       scrollSpeed: 1,
-      x_offset: 0,
-      y_offset: 0,
-      spacing: 1
     }
   }
 };
@@ -89,14 +85,20 @@ export const LanguagesSelector: React.FC = () => {
               <SelectValue placeholder="Select language" />
             </SelectTrigger>
             <SelectContent >
-              <SelectItem  key="none" value="none">
+               <SelectItem key="none" value="none">
                 None
               </SelectItem>
-              {AVAILABLE_LANGUAGES.map((lang) => (
-                <SelectItem key={lang.code} value={lang.code}>
-                  {lang.label}
-                </SelectItem>
-              ))}
+              {AVAILABLE_LANGUAGES
+                .filter(lang =>
+                  // Only show language if it isn't selected elsewhere,
+                  // or if it's already selected in this dropdown
+                  !selectedLanguages.includes(lang.code) || selectedLanguages[idx] === lang.code
+                )
+                .map(lang => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>

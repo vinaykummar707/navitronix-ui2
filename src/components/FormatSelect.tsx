@@ -25,7 +25,7 @@ export function FormatSelect({ format, onChange, langCode = "en" }: FormatSelect
           <SelectValue placeholder="Select format" />
         </SelectTrigger>
         <SelectContent>
-          {filteredFormats.map(fmt => (
+          {screenFormats.map(fmt => (
             <SelectItem key={fmt} value={fmt}>
               {fmt.charAt(0).toUpperCase() + fmt.slice(1)}
             </SelectItem>

@@ -119,11 +119,13 @@ export function RightPanel() {
     );
   }
 
+   const allLangCodes = languageConfigs.map(cfg => cfg.lang);
+
   return (
     <section className="w-[280px] shrink-0 flex flex-col gap-4 scrollbar-minimal overflow-auto bg-sidebar border-l">
       <CopySection selectedTab={selectedTab} />
 
-      <Accordion type="multiple" className="w-full border-y">
+      <Accordion collapsible defaultValue={'en'} type="single"  className="w-full border-y">
         {languageConfigs.map(({ lang, screen, label }) => (
           <LanguageAccordionItem
             key={lang}

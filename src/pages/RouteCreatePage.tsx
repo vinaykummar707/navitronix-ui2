@@ -7,7 +7,7 @@ import SimulationPanel from "@/components/SimulationPanel";
 import { defaultValues } from "@/defaultValues";
 import type { DisplayConfig } from "@/routeConfig";
 import { FormProvider, useForm } from "react-hook-form";
-import { LanguageConfigProvider } from "@/context/LanguageConfigContext";
+import { LanguageConfigProvider, useLanguageConfigs } from "@/context/LanguageConfigContext";
 import { useGetApi, usePostApi, usePutApi } from "@/hooks/useApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -34,11 +34,12 @@ const RouteCreatePage: React.FC = () => {
   const methods = useForm<DisplayConfig>({ defaultValues });
   const { handleSubmit, getValues, setValue, reset, formState: { errors } } = methods;
 
+  const { isLoading: isLangConfigsLoading, isError: isLangConfigsError } = useLanguageConfigs();
   // ========== Fetch/Edit State ==========
   const { data: editRouteData, isLoading, isError } = useGetApi<DisplayConfig>(
     `/routes/${routeId}`,
     {},
-    isEdit
+    isEdit && !isLangConfigsLoading
   );
 
   // ========== Mutations ==========
@@ -46,6 +47,7 @@ const RouteCreatePage: React.FC = () => {
     API_URL,
     () => {
       toast(isEdit ? 'Route Updated Successfully' : 'Route Saved Successfully');
+      navigate("https://navitronix.in/home/routes");
       // You may want to call navigate away on success here
     },
     () => {
@@ -58,6 +60,7 @@ const RouteCreatePage: React.FC = () => {
     `${API_URL}/${routeId}`,
     () => {
       toast('Route Updated Successfully');
+      navigate("https://navitronix.in/home/routes");
     },
     () => {
       toast('Route Update Failed');
@@ -175,7 +178,6 @@ const RouteCreatePage: React.FC = () => {
   );
 
   return (
-    <LanguageConfigProvider>
       <FormProvider {...methods}>
         <div className="w-screen h-screen flex flex-col overflow-hidden">
           <RouteHeader
@@ -223,7 +225,6 @@ const RouteCreatePage: React.FC = () => {
           errorMessages={fieldErrorMessages}
         />
       </FormProvider>
-    </LanguageConfigProvider>
   );
 };
 

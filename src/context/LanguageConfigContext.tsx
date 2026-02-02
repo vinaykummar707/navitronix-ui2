@@ -1,19 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext } from "react";
+import { useQuery } from "react-query";
 
-const LanguageConfigContext = createContext<any[]>([]);
+type LanguageConfigContextType = {
+  configs: any[];
+  isLoading: boolean;
+  isError: boolean;
+};
 
-export const LanguageConfigProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
-  const [configs, setConfigs] = useState<any[]>([]);
+const LanguageConfigContext = createContext<LanguageConfigContextType>({
+  configs: [],
+  isLoading: true,
+  isError: false,
+});
 
-  useEffect(() => {
-    fetch("https://api.navitronix.in/navitranix/api/languages/all")
-      .then(res => res.json())
-      .then(data => setConfigs(data))
-      .catch(() => setConfigs([]));
-  }, []);
+const fetchConfigs = async () => {
+  const res = await fetch("https://apis.navitronix.in/navitranix/api/languages/all");
+  if (!res.ok) throw new Error("Failed to fetch configs");
+  return res.json();
+};
+
+export const LanguageConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["languageConfigs"],
+    queryFn: fetchConfigs,
+    initialData: [],
+    retry:false
+  });
+  console.log('LangConfigProvider render', { isLoading, isError, data });
+  // Optional: Show loading UI while fetching
+  if (isLoading) {
+    return <div>Loading language configs...</div>;
+  }
+
+  if (isError) {
+    return <div>Failed to load language configs.</div>;
+  }
 
   return (
-    <LanguageConfigContext.Provider value={configs}>
+    <LanguageConfigContext.Provider value={{ configs: data || [], isLoading, isError }}>
       {children}
     </LanguageConfigContext.Provider>
   );

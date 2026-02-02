@@ -14,7 +14,7 @@ const LanguageConfigContext = createContext<LanguageConfigContextType>({
 });
 
 const fetchConfigs = async () => {
-  const res = await fetch("https://apis.navitronix.in/navitranix/api/languages/all");
+  const res = await fetch("https://api.navitronix.in/navitranix/api/languages/all");
   if (!res.ok) throw new Error("Failed to fetch configs");
   return res.json();
 };

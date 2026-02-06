@@ -26,7 +26,6 @@ export const LanguageConfigProvider: React.FC<{ children: React.ReactNode }> = (
     initialData: [],
     retry:false
   });
-  console.log('LangConfigProvider render', { isLoading, isError, data });
   // Optional: Show loading UI while fetching
   if (isLoading) {
     return <div>Loading language configs...</div>;

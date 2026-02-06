@@ -10,6 +10,7 @@ import { getTextItemsForFormat } from "./getTextItemsForFormat";
 import { getDefaultTextsForFormat } from "@/defaultValues";
 import type { DisplayConfig, Screen, ScreenFormat } from "@/routeConfig";
 import { LanguageBadge } from "./LanguageBadge";
+import { he } from "zod/v4/locales";
 
 // ============================================================================
 // TYPES
@@ -53,6 +54,7 @@ export const LanguageAccordionItem: React.FC<LanguageAccordionItemProps> = ({
    * Handle format change with proper form updates [web:64]
    */
   const handleFormatChange = (nextFormat: ScreenFormat) => {
+    
     setValue(formatField, nextFormat, { 
       shouldDirty: true, 
       shouldValidate: true 
@@ -62,14 +64,18 @@ export const LanguageAccordionItem: React.FC<LanguageAccordionItemProps> = ({
       shouldDirty: true, 
       shouldValidate: true 
     });
+
+//how to get height and width value from using heightField and widthField and reset them to default values when format changes
+    const currentHeight = watch(heightField);
+    const currentWidth = watch(widthField);
     
     // Reset dimensions
-    setValue(heightField, 16, { 
+    setValue(heightField, currentHeight, { 
       shouldDirty: true, 
       shouldValidate: true 
     });
     
-    setValue(widthField, 96, { 
+    setValue(widthField, currentWidth, { 
       shouldDirty: true, 
       shouldValidate: true 
     });

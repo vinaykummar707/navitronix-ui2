@@ -25,7 +25,6 @@ const TestingPlayground: React.FC = () => {
     const { selectedTab } = useTabsStore();
 
     useEffect(() => {
-        console.log(input, radio, selectedTab)
     })
 
 

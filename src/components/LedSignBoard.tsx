@@ -50,9 +50,6 @@ const LEDBitmapSimulator = ({
 
   // Process bitmap text into matrix with scrolling support
   const processBitmapText = (text, offset = 0) => {
-    console.log("Processing bitmap text with offset:", offset);
-    console.log(text);
-    console.log("Rows:", rows, "Cols:", cols);
     if (!text)
       return Array(rows)
         .fill()

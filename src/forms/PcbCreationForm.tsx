@@ -61,7 +61,6 @@ export default function PcbCreationForm() {
     "/deviceControl",
     (data) => {
       // Optionally handle success, show toast/snackbar etc.
-      console.log("Device Control Success:", data);
     },
     (err) => {
       // Optionally handle error, show toast/snackbar etc.

@@ -35,7 +35,6 @@ export default function TestingForm() {
     });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
     }
 
     function onReset() {

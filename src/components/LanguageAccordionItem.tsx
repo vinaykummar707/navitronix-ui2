@@ -10,7 +10,6 @@ import { getTextItemsForFormat } from "./getTextItemsForFormat";
 import { getDefaultTextsForFormat } from "@/defaultValues";
 import type { DisplayConfig, Screen, ScreenFormat } from "@/routeConfig";
 import { LanguageBadge } from "./LanguageBadge";
-import { he } from "zod/v4/locales";
 
 // ============================================================================
 // TYPES
